@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use Illuminate\Support\Facades\Redis;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -16,4 +17,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
+Route::get('/redis-test',function(){
+    Redis::set('foo','bar');
+    return Redis::get('foo');
+});
 require __DIR__.'/settings.php';
