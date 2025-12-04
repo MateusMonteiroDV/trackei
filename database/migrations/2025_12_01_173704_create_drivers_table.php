@@ -10,6 +10,7 @@ return new class extends Migration {
     {
         Schema::create('drivers', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('name');
             $table->string('vehicle')->nullable();
             $table->enum('status', ['available', 'on_delivery'])->default('available');
