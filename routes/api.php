@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\DriverController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function() {
         }
         return ['secret' => 'Admin content'];
     });
+    Route::post('/create-driver',[DriverController::class],'createDriver');
 });
 
 Route::get('health', function () {

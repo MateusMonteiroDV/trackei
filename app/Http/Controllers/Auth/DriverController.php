@@ -17,9 +17,11 @@ class DriverController extends Controller
                 'message' => 'Unauthorized'
             ], 403);
         }
+
+
         $data = $req->validate([
-            'username' => 'required|string|max:255',
-            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,name',
+            'name' => 'required|string|max:255|unique:drivers,name',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|in:admin,client,driver',
@@ -33,7 +35,7 @@ class DriverController extends Controller
             'role' => $data['role']
         ]);
 
-        Driver::create([
+        $driver = Driver::create([
             'name' => $data['name'],
             'user_id' => $user->id,
             'vehicle' => $data['vehicle']
@@ -41,6 +43,7 @@ class DriverController extends Controller
 
         return response()->json([
             'user' => $user,
+            'driver' => $driver
         ], 201);
     }
 }
