@@ -7,17 +7,15 @@ use Illuminate\Http\Request;
 use App\Models\Driver;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class DriverController extends Controller
 {
     public function createDriver(Request $req)
     {
         if ($req->user()->role != 'admin') {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 403);
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
-
 
         $data = $req->validate([
             'username' => 'required|string|max:255|unique:users,name',
@@ -28,23 +26,33 @@ class DriverController extends Controller
             'vehicle' => 'required|string',
         ]);
 
-        $user = User::create([
-            'name' => $data['username'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role' => $data['role']
-        ]);
+        try {
+            $driver = DB::transaction(function () use ($data) {
+                $user = User::create([
+                    'name' => $data['username'],
+                    'email' => $data['email'],
+                    'password' => Hash::make($data['password']),
+                    'role' => $data['role']
+                ]);
 
-        $driver = Driver::create([
-            'name' => $data['name'],
-            'user_id' => $user->id,
-            'vehicle' => $data['vehicle']
-        ]);
+                return Driver::create([
+                    'user_id' => $user->id,
+                    'name' => $data['name'],
+                    'vehicle' => $data['vehicle']
+                ]);
+            });
 
-        return response()->json([
-            'user' => $user,
-            'driver' => $driver
-        ], 201);
+            return response()->json([
+                'message' => 'Driver created successfully!',
+                'driver' => $driver
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error creating driver',
+                'error' => $e->getMessage()
+            ], 400);
+        }
     }
 }
 

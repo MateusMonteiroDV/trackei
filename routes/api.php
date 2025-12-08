@@ -22,7 +22,7 @@ Route::middleware('auth:sanctum')->group(function() {
         }
         return ['secret' => 'Admin content'];
     });
-    Route::post('/create-driver',[DriverController::class],'createDriver');
+    Route::post('/create-driver',[DriverController::class,'createDriver']);
 });
 
 Route::get('health', function () {
