@@ -17,26 +17,10 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::table('drivers', function (Blueprint $table) {
-            $table->foreignId('business_id')->nullable()->constrained('business')->cascadeOnDelete();
-        });
-
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('business_id')->nullable()->constrained('business')->cascadeOnDelete();
-        });
     }
 
     public function down(): void
     {
-        Schema::table('drivers', function (Blueprint $table) {
-            $table->dropForeign(['business_id']);
-            $table->dropColumn('business_id');
-        });
-
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['business_id']);
-            $table->dropColumn('business_id');
-        });
 
         Schema::dropIfExists('business');
     }
