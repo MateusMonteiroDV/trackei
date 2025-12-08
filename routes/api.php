@@ -4,11 +4,14 @@
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\DriverController;
+use App\Http\Controllers\Auth\BusinessController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/login', [LoginController::class, 'login']);
+Route::post('/create-business',[BusinessController::class,'store']);
+
 
 Route::middleware('auth:sanctum')->group(function() {
 
@@ -22,6 +25,7 @@ Route::middleware('auth:sanctum')->group(function() {
         }
         return ['secret' => 'Admin content'];
     });
+
     Route::post('/create-driver',[DriverController::class,'createDriver']);
 });
 
