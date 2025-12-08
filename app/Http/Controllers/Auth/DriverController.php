@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Driver;
 use App\Models\User;
+use App\Models\Business;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
@@ -26,8 +27,14 @@ class DriverController extends Controller
             'vehicle' => 'required|string',
         ]);
 
+        $userAdmin = $req->user();
         try {
-            $driver = DB::transaction(function () use ($data) {
+            $driver = DB::transaction(function () use ($data,$userAdmin) {
+                $business = Business::where('id', $userAdmin->business_id)->first();
+                if (!$business) {
+                    throw new \Exception('Cannot create driver: company with this CNPJ does not exist');
+                }
+
                 $user = User::create([
                     'name' => $data['username'],
                     'email' => $data['email'],
@@ -38,7 +45,8 @@ class DriverController extends Controller
                 return Driver::create([
                     'user_id' => $user->id,
                     'name' => $data['name'],
-                    'vehicle' => $data['vehicle']
+                    'vehicle' => $data['vehicle'],
+                    'business_id' => $business->id
                 ]);
             });
 

@@ -12,6 +12,7 @@ class Business extends Model
     protected $table = 'business';
 
     protected $fillable = [
+        'id',
         'name',
         'cnpj',
         'address',
