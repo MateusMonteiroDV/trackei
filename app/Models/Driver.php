@@ -9,6 +9,7 @@ class Driver extends Model
 {
     protected $fillable = [
         'name',
+        'cpf',
         'user_id',
         'vehicle',
         'status',

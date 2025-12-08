@@ -21,6 +21,7 @@ class DriverController extends Controller
         $data = $req->validate([
             'username' => 'required|string|max:255|unique:users,name',
             'name' => 'required|string|max:255|unique:drivers,name',
+            'cpf' => 'required|string|max:255|unique:drivers,cpf',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|in:admin,client,driver',
@@ -45,6 +46,7 @@ class DriverController extends Controller
                 return Driver::create([
                     'user_id' => $user->id,
                     'name' => $data['name'],
+                    'cpf' => $data['cpf'],
                     'vehicle' => $data['vehicle'],
                     'business_id' => $business->id
                 ]);
