@@ -21,7 +21,13 @@ return new class extends Migration
 
     public function down(): void
     {
+        Schema::table('users', function (Blueprint $table) {
+        $table->dropForeign(['business_id']);
+    });
 
+        Schema::table('drivers', function (Blueprint $table) {
+        $table->dropForeign(['business_id']);
+    });
         Schema::dropIfExists('business');
     }
 };
