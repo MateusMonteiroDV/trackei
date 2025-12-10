@@ -112,9 +112,8 @@ class DriverController extends Controller
 
             $data = $req->validate([
                 'cpf' => 'required|string',
-                'nome' => 'sometimes|string',
-                'telefone' => 'sometimes|string',
-                'endereco' => 'sometimes|string'
+                'name' => 'sometimes|string',
+                'vehicle' => 'sometimes|string',
             ]);
 
             $driver = Driver::where('cpf', $data['cpf'])->first();
@@ -127,7 +126,11 @@ class DriverController extends Controller
 
             $driver->update($data);
 
-            return response()->json(['message' => 'Driver updated successfully'], 200);
+            return response()->json([
+                'message' => 'Driver updated successfully',
+                'driver' => $driver
+
+            ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -136,5 +139,26 @@ class DriverController extends Controller
             ], 500);
         }
     }
+
+    public function getDriver(Request $req)
+    {
+        try {
+            if ($req->user()->role !== 'admin') {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+
+            $id_business = $req->user()->business_id;
+            $drivers = Driver::where('business_id', $id_business)->get();
+
+            return response()->json($drivers, 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error fetching drivers',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 }
 
