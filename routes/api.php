@@ -27,6 +27,8 @@ Route::middleware('auth:sanctum')->group(function() {
     });
 
     Route::post('/create-driver',[DriverController::class,'createDriver']);
+    Route::post('/delete-driver',[DriverController::class,'deleteDriver']);
+    Route::post('/edit-driver',[DriverController::class,'editDriver']);
 });
 
 Route::get('health', function () {

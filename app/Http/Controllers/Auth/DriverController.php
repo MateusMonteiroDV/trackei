@@ -29,8 +29,9 @@ class DriverController extends Controller
         ]);
 
         $userAdmin = $req->user();
+
         try {
-            $driver = DB::transaction(function () use ($data,$userAdmin) {
+            $driver = DB::transaction(function () use ($data, $userAdmin) {
                 $business = Business::where('id', $userAdmin->business_id)->first();
                 if (!$business) {
                     throw new \Exception('Cannot create driver: company with this CNPJ does not exist');
@@ -62,6 +63,77 @@ class DriverController extends Controller
                 'message' => 'Error creating driver',
                 'error' => $e->getMessage()
             ], 400);
+        }
+    }
+
+    public function deleteDriver(Request $req)
+    {
+        try {
+            if ($req->user()->role !== 'admin') {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+
+            $data = $req->validate([
+                'cpf' => 'required|string'
+            ]);
+
+            DB::beginTransaction();
+
+            $driver = Driver::where('cpf', $data['cpf'])->first();
+
+            if (!$driver) {
+                return response()->json(['message' => 'Driver not found'], 404);
+            }
+
+            $userId = $driver->user_id;
+
+            $driver->delete();
+            User::where('id', $userId)->delete();
+
+            DB::commit();
+
+            return response()->json(['message' => 'Driver and user deleted'], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error deleting driver',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function editDriver(Request $req)
+    {
+        try {
+            if ($req->user()->role !== 'admin') {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+
+            $data = $req->validate([
+                'cpf' => 'required|string',
+                'nome' => 'sometimes|string',
+                'telefone' => 'sometimes|string',
+                'endereco' => 'sometimes|string'
+            ]);
+
+            $driver = Driver::where('cpf', $data['cpf'])->first();
+
+            if (!$driver) {
+                return response()->json(['message' => 'Driver not found'], 404);
+            }
+
+            unset($data['cpf']);
+
+            $driver->update($data);
+
+            return response()->json(['message' => 'Driver updated successfully'], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error updating driver',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }
