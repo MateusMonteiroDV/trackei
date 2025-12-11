@@ -13,7 +13,7 @@ class Package extends Model
         'recipient_name',
         'delivery_address',
         'status',
-        'id_business',
+        'business_id',
         'assigned_driver_id'
     ];
 
