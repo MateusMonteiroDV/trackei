@@ -192,8 +192,7 @@ class DriverController extends Controller
             } catch (\Exception $e) {
                 return response()->json([], 500);
             }
-        }}
-    }
+        }
 
 }
 
