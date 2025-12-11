@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\DriverController;
 use App\Http\Controllers\Auth\BusinessController;
+use App\Http\Controllers\Auth\ClientController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,13 +26,15 @@ Route::middleware('auth:sanctum')->group(function() {
         }
         return ['secret' => 'Admin content'];
     });
-
+    //logic-driver
     Route::get('/drivers',[DriverController::class,'getDriver']);
     Route::post('/create-driver',[DriverController::class,'createDriver']);
     Route::delete('/delete-driver',[DriverController::class,'deleteDriver']);
     Route::put('/edit-driver',[DriverController::class,'editDriver']);
-
     Route::post('/driver/location',[DriverController::class,'sendLocationDriver']);
+
+    //logic-client
+    Route::get('/getTrackCode',[ClientController::class,'getTrackCode'] );
 });
 
 Route::get('health', function () {
