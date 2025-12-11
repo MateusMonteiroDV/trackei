@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\Business;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
+use App\Events\DriverLocationUpdated;
 
 class DriverController extends Controller
 {
@@ -159,26 +161,38 @@ class DriverController extends Controller
             ], 500);
         }
     }
+        public function sendLocationDriver(Request $req)
+        {
+            try {
+                if ($req->user()->role !== 'driver') {
+                    return response()->json(['message' => 'You are not a driver'], 403);
+                }
 
-    public function sendLocationDriver(Request $req)
-    {
-        try{
-            if ($req->user()->role !== 'driver') {
-                return response()->json(['message' => 'You are not a driver', 403);
+                $data = $req->validate([
+                    'lat' => 'required|numeric',
+                    'lng' => 'required|numeric',
+                ]);
+
+                $driverId = $req->user()->id;
+
+                Redis::set("driver:$driverId:location", json_encode([
+                    'lat' => $data['lat'],
+                    'lng' => $data['lng'],
+                    'updated_at' => now()->toDateTimeString()
+                ]));
+
+                broadcast(new DriverLocationUpdated(
+                    $driverId,
+                    $data['lat'],
+                    $data['lng']
+                ));
+
+                return response()->json([], 200);
+
+            } catch (\Exception $e) {
+                return response()->json([], 500);
             }
-            $data = $req->validate([
-                'lat' => 'required|string',
-                'lng' => 'required|string'
-
-            ]);
-
-        } catch(\Exception $e){
-            return response()->json([
-                'message' => 'Error fetching drivers',
-                'error' => $e->getMessage()
-            ], 500);
-
-        }
+        }}
     }
 
 }
