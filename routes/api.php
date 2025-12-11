@@ -30,6 +30,8 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::post('/create-driver',[DriverController::class,'createDriver']);
     Route::delete('/delete-driver',[DriverController::class,'deleteDriver']);
     Route::put('/edit-driver',[DriverController::class,'editDriver']);
+
+    Route::post('/driver/location',[DriverController::class,'sendLocationDriver']);
 });
 
 Route::get('health', function () {

@@ -160,5 +160,26 @@ class DriverController extends Controller
         }
     }
 
+    public function sendLocationDriver(Request $req)
+    {
+        try{
+            if ($req->user()->role !== 'driver') {
+                return response()->json(['message' => 'You are not a driver', 403);
+            }
+            $data = $req->validate([
+                'lat' => 'required|string',
+                'lng' => 'required|string'
+
+            ]);
+
+        } catch(\Exception $e){
+            return response()->json([
+                'message' => 'Error fetching drivers',
+                'error' => $e->getMessage()
+            ], 500);
+
+        }
+    }
+
 }
 
