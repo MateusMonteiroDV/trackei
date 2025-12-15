@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Driver extends Model
 {
     protected $fillable = [
+        'id',
         'name',
         'cpf',
         'user_id',

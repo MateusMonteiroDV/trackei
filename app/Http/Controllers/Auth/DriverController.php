@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Driver;
 use App\Models\User;
 use App\Models\Business;
+use App\Models\Package;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
@@ -192,13 +193,21 @@ class DriverController extends Controller
             } catch (\Exception $e) {
                 return response()->json([], 500);
             }
-        }
+       }
+
         public function acceptPackage(Request $req, $packageId)
         {
-            $driver = $req->user();
+            $driver = Driver::where('user_id',$req->user()->id)->first();
 
+            if (!$driver || $req->user()->role !== 'driver') {
+                return response()->json([
+                    'message' => 'Invalid driver'
+                ], 403);
+            }
 
-            $package = Package::where('id', $packageId)->whereNull('driver_id')->first();
+            $package = Package::where('id', $packageId)
+                ->whereNull('assigned_driver_id')
+                ->first();
 
             if (!$package) {
                 return response()->json([
@@ -206,8 +215,8 @@ class DriverController extends Controller
                 ], 400);
             }
 
-            $package->driver_id = $driver->id;
-            $package->status = 'on_delivery';
+            $package->assigned_driver_id = $driver->id;
+            $package->status = 'in_transit';
             $package->save();
 
             return response()->json([

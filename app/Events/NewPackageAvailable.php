@@ -15,7 +15,7 @@ class NewPackageAvailable implements ShouldBroadcast
 
     public function __construct($package)
     {
-        $$this->packageId = $package->id;
+        $this->packageId = $package->id;
         $this->trackingCode = $package->tracking_code;
         $this->deliveryAddress = $package->delivery_address;
         $this->businessId = $package->business_id;
@@ -24,5 +24,9 @@ class NewPackageAvailable implements ShouldBroadcast
     public function broadcastOn()
     {
         return new Channel('drivers.available.' . $this->businessId);
+    }
+    public function broadcastAs()
+    {
+        return 'new-package';
     }
 }

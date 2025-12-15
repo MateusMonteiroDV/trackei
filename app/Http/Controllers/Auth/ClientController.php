@@ -9,6 +9,7 @@ use App\Models\Driver;
 use App\Models\Business;
 use App\Models\Client;
 use App\Events\NewPackageAvailable;
+
 class clientController extends Controller
 {
     public function simulatePurchase(Request $req)
@@ -19,7 +20,7 @@ class clientController extends Controller
                     'message' => 'You are not client'
                 ], 400);
             }
-            $data = $request->validate([
+            $data = $req->validate([
                         'business_cnpj' => 'required|string',
                         'recipient_name' => 'required|string',
                         'delivery_address' => 'required|string',

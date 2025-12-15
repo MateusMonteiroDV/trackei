@@ -32,7 +32,7 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::delete('/delete-driver',[DriverController::class,'deleteDriver']);
     Route::put('/edit-driver',[DriverController::class,'editDriver']);
     Route::post('/driver/location',[DriverController::class,'sendLocationDriver']);
-    Route::post('/driver/accept-location',[DriverController::class,'acceptPackage']);
+    Route::post('/driver/accept-package/{packageId}',[DriverController::class,'acceptPackage']);
 
     //logic-client
     Route::post('/simulate-purchase', [ClientController::class, 'simulatePurchase']);
