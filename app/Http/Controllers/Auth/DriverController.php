@@ -176,17 +176,13 @@ class DriverController extends Controller
 
                 $driverId = $req->user()->id;
 
-                Redis::set("driver:$driverId:location", json_encode([
-                    'lat' => $data['lat'],
-                    'lng' => $data['lng'],
-                    'updated_at' => now()->toDateTimeString()
-                ]));
-
                 broadcast(new DriverLocationUpdated(
                     $driverId,
                     $data['lat'],
                     $data['lng']
                 ));
+
+
 
                 return response()->json([], 200);
 
