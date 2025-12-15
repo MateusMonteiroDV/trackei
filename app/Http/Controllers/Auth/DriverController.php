@@ -193,6 +193,28 @@ class DriverController extends Controller
                 return response()->json([], 500);
             }
         }
+        public function acceptPackage(Request $req, $packageId)
+        {
+            $driver = $req->user();
+
+
+            $package = Package::where('id', $packageId)->whereNull('driver_id')->first();
+
+            if (!$package) {
+                return response()->json([
+                    'message' => 'This package is no longer available'
+                ], 400);
+            }
+
+            $package->driver_id = $driver->id;
+            $package->status = 'on_delivery';
+            $package->save();
+
+            return response()->json([
+                'message' => 'Package assigned successfully',
+                'package' => $package
+            ], 200);
+        }
 
 }
 
