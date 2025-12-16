@@ -11,7 +11,6 @@ class BusinessController extends Controller
 {
     public function store(Request $req)
     {
-
         try {
             $data = $req->validate([
                 'name' => 'required|string|max:255|unique:business,name',
@@ -20,12 +19,36 @@ class BusinessController extends Controller
                 'phone' => 'nullable|string|max:20',
             ]);
 
+            if(Business::where('cnpj',$data['cnpj'])){
+                return response()->json([
+                    'message' => 'Business already exists',
+                ], 400);
+
+            }
+
             $business = Business::create($data);
+
+            $password = Str::random(12);
+
+            $admin = User::create([
+                'name' => 'admin_' . Str::random(6),
+                'email' => 'admin_' . Str::random(10) . '@temp.local',
+                'password' => Hash::make($password),
+            ]);
+
+            $admin->role = 'admin';
+            $admin->business_id = $business->id;
+            $admin->save();
 
             return response()->json([
                 'message' => 'Business created successfully',
-                'business' => $business
+                'business' => $business,
+                'admin_credentials' => [
+                    'email' => $admin->email,
+                    'password' => $password
+                ]
             ], 201);
+
         } catch (QueryException $e) {
             return response()->json([
                 'message' => 'Error creating business',
@@ -34,5 +57,4 @@ class BusinessController extends Controller
         }
     }
 }
-
 
