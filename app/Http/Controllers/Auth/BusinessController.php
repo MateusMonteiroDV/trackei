@@ -41,6 +41,7 @@ class BusinessController extends Controller
             $admin->save();
 
             return response()->json([
+                'instruction'=>'Use this initial admin user to create your own admin user',
                 'message' => 'Business created successfully',
                 'business' => $business,
                 'admin_credentials' => [

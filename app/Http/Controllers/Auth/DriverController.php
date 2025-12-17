@@ -15,59 +15,67 @@ use App\Events\DriverLocationUpdated;
 
 class DriverController extends Controller
 {
+
     public function createDriver(Request $req)
     {
-        if ($req->user()->role != 'admin') {
+        if ($req->user()->role !== 'admin') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $data = $req->validate([
             'username' => 'required|string|max:255|unique:users,name',
-            'name' => 'required|string|max:255|unique:drivers,name',
-            'cpf' => 'required|string|max:255|unique:drivers,cpf',
-            'email' => 'required|email|unique:users,email',
+            'name'     => 'required|string|max:255|unique:drivers,name',
+            'cpf'      => 'required|string|max:255|unique:drivers,cpf',
+            'email'    => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
-            'role' => 'required|in:admin,client,driver',
-            'vehicle' => 'required|string',
+            'vehicle'  => 'required|string',
         ]);
 
-        $userAdmin = $req->user();
+        $admin = $req->user();
+
+        $business = Business::find($admin->business_id);
+        if (!$business) {
+            return response()->json(['message' => 'Business not found'], 404);
+        }
 
         try {
-            $driver = DB::transaction(function () use ($data, $userAdmin) {
-                $business = Business::where('id', $userAdmin->business_id)->first();
-                if (!$business) {
-                    throw new \Exception('Cannot create driver: company with this CNPJ does not exist');
-                }
+            DB::beginTransaction();
 
-                $user = User::create([
-                    'name' => $data['username'],
-                    'email' => $data['email'],
-                    'password' => Hash::make($data['password']),
-                    'role' => $data['role']
-                ]);
-
-                return Driver::create([
-                    'user_id' => $user->id,
-                    'name' => $data['name'],
-                    'cpf' => $data['cpf'],
-                    'vehicle' => $data['vehicle'],
-                    'business_id' => $business->id
-                ]);
-            });
-
-            return response()->json([
-                'message' => 'Driver created successfully!',
-                'driver' => $driver
+            $user = User::create([
+                'name'     => $data['username'],
+                'email'    => $data['email'],
+                'password' => Hash::make($data['password']),
             ]);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Error creating driver',
-                'error' => $e->getMessage()
-            ], 400);
+                $user->role = 'driver';
+                $user->save();
+
+                $driver = Driver::create([
+                    'name'    => $data['name'],
+                    'cpf'     => $data['cpf'],
+                    'vehicle' => $data['vehicle'],
+                ]);
+
+                $driver->user_id = $user->id;
+                $driver->business_id = $business->id;
+                $driver->save();
+
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'Driver created successfully!',
+                    'driver'  => $driver
+                ], 201);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+
+                return response()->json([
+                    'message' => 'Error creating driver',
+                    'error'   => $e->getMessage()
+                ], 400);
+            }
         }
-    }
 
     public function deleteDriver(Request $req)
     {
@@ -80,6 +88,7 @@ class DriverController extends Controller
                 'cpf' => 'required|string'
             ]);
 
+
             DB::beginTransaction();
 
             $driver = Driver::where('cpf', $data['cpf'])->first();
@@ -87,6 +96,13 @@ class DriverController extends Controller
             if (!$driver) {
                 return response()->json(['message' => 'Driver not found'], 404);
             }
+            $admin_id_business = $req->user()->business_id;
+
+            if($driver->business_id !== $admin_id_business ){
+
+                return response()->json(['message' => 'Driver not found'], 404);
+            }
+
 
             $userId = $driver->user_id;
 
@@ -124,8 +140,15 @@ class DriverController extends Controller
             if (!$driver) {
                 return response()->json(['message' => 'Driver not found'], 404);
             }
+            $admin_id_business = $req->user()->business_id;
+
+            if($driver->business_id !== $admin_id_business ){
+
+                return response()->json(['message' => 'Driver not found'], 404);
+            }
 
             unset($data['cpf']);
+
 
             $driver->update($data);
 
@@ -182,14 +205,14 @@ class DriverController extends Controller
                     $data['lng']
                 ));
 
-
-
                 return response()->json([], 200);
 
             } catch (\Exception $e) {
                 return response()->json([], 500);
             }
-       }
+        }
+
+
 
         public function acceptPackage(Request $req, $packageId)
         {

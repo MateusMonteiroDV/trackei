@@ -26,6 +26,8 @@ Route::middleware('auth:sanctum')->group(function() {
         }
         return ['secret' => 'Admin content'];
     });
+    //logic-admin
+    Route::post('/create-admin',[BusinessController::class,'createAdmin']);
     //logic-driver
     Route::get('/drivers',[DriverController::class,'getDriver']);
     Route::post('/create-driver',[DriverController::class,'createDriver']);
@@ -33,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::put('/edit-driver',[DriverController::class,'editDriver']);
     Route::post('/driver/location',[DriverController::class,'sendLocationDriver']);
     Route::post('/driver/accept-package/{packageId}',[DriverController::class,'acceptPackage']);
+
 
     //logic-client
     Route::post('/simulate-purchase', [ClientController::class, 'simulatePurchase']);
