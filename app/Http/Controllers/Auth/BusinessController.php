@@ -57,5 +57,17 @@ class BusinessController extends Controller
             ], 500);
         }
     }
+    public function createAdmin(Requuest $req){
+        try{
+
+        }catch(\Exception $e){
+            return response()->json([
+                'message' => 'Error creating business',
+                'error' => $e->getMessage()
+            ], 500);
+
+        }
+
+    }
 }
 
