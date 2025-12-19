@@ -3,15 +3,21 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Business;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Driver;
+use Illuminate\Support\Facades\DB;
 
 class BusinessController extends Controller
 {
 
     public function store(Request $req)
     {
+    DB::beginTransaction();
         try {
             $data = $req->validate([
                 'name' => 'required|string|max:255|unique:business,name',
@@ -33,6 +39,7 @@ class BusinessController extends Controller
                 'business_id' => $business->id,
             ]);
 
+    DB::commit();
             return response()->json([
                 'instruction' => 'Use this initial admin user to create your own admin user',
                 'message' => 'Business created successfully',
@@ -66,6 +73,7 @@ class BusinessController extends Controller
             'password' => 'required|string|min:8'
         ]);
 
+    DB::beginTransaction();
         $admin = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
@@ -73,6 +81,8 @@ class BusinessController extends Controller
             'role' => 'admin',
             'business_id' => $req->user()->business_id
         ]);
+
+    DB::commit();
 
         return response()->json([
             'message' => 'Admin created successfully',
