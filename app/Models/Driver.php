@@ -12,6 +12,8 @@ class Driver extends Model
         'cpf',
         'vehicle',
         'status',
+        'user_id',
+        'business_id'
 
     ];
 

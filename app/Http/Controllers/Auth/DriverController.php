@@ -34,6 +34,7 @@ class DriverController extends Controller
         $admin = $req->user();
 
         $business = Business::find($admin->business_id);
+
         if (!$business) {
             return response()->json(['message' => 'Business not found'], 404);
         }
@@ -45,22 +46,20 @@ class DriverController extends Controller
                 'name'     => $data['username'],
                 'email'    => $data['email'],
                 'password' => Hash::make($data['password']),
+                'role' => 'driver',
             ]);
 
-                $user->role = 'driver';
-                $user->save();
 
-                $driver = Driver::create([
-                    'name'    => $data['name'],
-                    'cpf'     => $data['cpf'],
-                    'vehicle' => $data['vehicle'],
-                ]);
+            $driver = Driver::create([
+                'name'    => $data['name'],
+                'cpf'     => $data['cpf'],
+                'vehicle' => $data['vehicle'],
+                'user_id' => $user->id,
+                'business_id' => $business->id
 
-                $driver->user_id = $user->id;
-                $driver->business_id = $business->id;
-                $driver->save();
+            ]);
 
-                DB::commit();
+             DB::commit();
 
                 return response()->json([
                     'message' => 'Driver created successfully!',
@@ -100,7 +99,9 @@ class DriverController extends Controller
 
             if($driver->business_id !== $admin_id_business ){
 
-                return response()->json(['message' => 'Driver not found'], 404);
+                return response()->json(
+                    ['message' => 'Driver inst part of the company'
+                    ], 404);
             }
 
 
@@ -144,7 +145,9 @@ class DriverController extends Controller
 
             if($driver->business_id !== $admin_id_business ){
 
-                return response()->json(['message' => 'Driver not found'], 404);
+                return response()->json(
+                    ['message' => 'Driver inst part of the company'
+                    ], 404);
             }
 
             unset($data['cpf']);
