@@ -12,7 +12,6 @@ configureEcho({
 });
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
-
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) =>
@@ -22,7 +21,7 @@ createInertiaApp({
         ),
     setup({ el, App, props }) {
         const root = createRoot(el);
-
+ console.log(el)
         root.render(
             <StrictMode>
                 <App {...props} />

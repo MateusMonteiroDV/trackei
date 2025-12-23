@@ -1,24 +1,26 @@
 <?php
 
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Laravel\Fortify\Features;
-use Illuminate\Support\Facades\Redis;
+
+    Route::get('/login', function () {
+        return Inertia::render('auth/login');
+    })->name('login');
+
+    Route::get('/register', function () {
+        return Inertia::render('auth/register');
+    })->name('register');
+
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
-        'canRegister' => Features::enabled(Features::registration()),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
     ]);
-})->name('home');
-
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
 });
 
-Route::get('/redis-test',function(){
-    Redis::set('foo','bar');
-    return Redis::get('foo');
-});
+
+
 require __DIR__.'/settings.php';

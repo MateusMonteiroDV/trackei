@@ -1,44 +1,28 @@
-import AppLogoIcon from '@/components/app-logo-icon';
-import { home } from '@/routes';
-import { Link } from '@inertiajs/react';
-import { type PropsWithChildren } from 'react';
 
-interface AuthLayoutProps {
-    name?: string;
-    title?: string;
-    description?: string;
+import { ReactNode } from 'react';
+import { Link } from '@inertiajs/react';
+import { home, login, register } from '@/routes';
+
+interface AuthSimpleLayoutProps {
+    children: ReactNode;
 }
 
-export default function AuthSimpleLayout({
-    children,
-    title,
-    description,
-}: PropsWithChildren<AuthLayoutProps>) {
+export default function AuthSimpleLayout({ children,title,description}: AuthSimpleLayoutProps) {
     return (
-        <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
-            <div className="w-full max-w-sm">
-                <div className="flex flex-col gap-8">
-                    <div className="flex flex-col items-center gap-4">
-                        <Link
-                            href={home()}
-                            className="flex flex-col items-center gap-2 font-medium"
-                        >
-                            <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-md">
-                                <AppLogoIcon className="size-9 fill-current text-[var(--foreground)] dark:text-white" />
-                            </div>
-                            <span className="sr-only">{title}</span>
-                        </Link>
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+            <header className="mb-6">
+                <h1 className="text-3xl font-bold">My App</h1>
+                <nav className="mt-2">
+                    <Link href="/home" className="mr-4 text-blue-600">Home</Link>
+                    <Link href="/login"className="mr-4 text-blue-600">Login</Link>
+                    <Link href="/register" className="text-blue-600">Register</Link>
+                </nav>
+            </header>
 
-                        <div className="space-y-2 text-center">
-                            <h1 className="text-xl font-medium">{title}</h1>
-                            <p className="text-center text-sm text-muted-foreground">
-                                {description}
-                            </p>
-                        </div>
-                    </div>
-                    {children}
-                </div>
-            </div>
+            <main className="w-full max-w-md p-6 bg-white rounded shadow">
+                {children}
+            </main>
         </div>
     );
 }
+
