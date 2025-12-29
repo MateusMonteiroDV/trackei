@@ -15,7 +15,6 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
-        'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
@@ -23,4 +22,6 @@ Route::get('/', function () {
 
 
 
-require __DIR__.'/settings.php';
+Route::middleware('web')->group(function () {
+    require __DIR__.'/settings.php';
+});
