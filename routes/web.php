@@ -20,8 +20,11 @@ Route::get('/', function () {
     ]);
 });
 
-
-
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('auth/dashboard');
+    })->name('dashboard');
+});
 Route::middleware('web')->group(function () {
     require __DIR__.'/settings.php';
 });
