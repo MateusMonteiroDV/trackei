@@ -7,7 +7,7 @@ interface AuthSimpleLayoutProps {
     children: ReactNode;
 }
 
-export default function AuthSimpleLayout({ children,title,description}: AuthSimpleLayoutProps) {
+export default function AuthSimpleLayout({ children,user}: AuthSimpleLayoutProps) {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-200">
             <header className="mb-6">

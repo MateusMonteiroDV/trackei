@@ -1,6 +1,16 @@
-import { Head } from '@inertiajs/react'
+import { Head,router } from '@inertiajs/react'
+import { useEffect } from 'react'
+import {useSelector} from 'react-redux'
 
 export default function Dashboard() {
+    const user = useSelector((state)=>state.auth.user);
+    useEffect(()=>{
+        if(!user || user.role != 'admin'){
+            router.visit('/')
+        }
+    },[user])
+
+
     return (
         <div className="p-6">
             <Head title="Dashboard" />

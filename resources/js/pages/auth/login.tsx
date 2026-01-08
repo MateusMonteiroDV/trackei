@@ -11,6 +11,8 @@ import { Spinner } from '@/components/ui/spinner'
 import AuthLayout from '@/layouts/auth-layout'
 import { register } from '@/routes'
 import { request } from '@/routes/password'
+import {setUser} from '../../store/slices/authSlice'
+import { useDispatch } from 'react-redux';
 
 interface LoginProps {
     status?: string
@@ -25,7 +27,7 @@ export default function Login({
 }: LoginProps) {
     const [processing, setProcessing] = useState(false)
     const [errors, setErrors] = useState<Record<string, string>>({})
-
+    const dispatch = useDispatch()
     const submit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setProcessing(true)
@@ -39,9 +41,13 @@ export default function Login({
                 password: form.get('password'),
                 remember: form.get('remember') || false,
             })
+            console.log(res)
+            if(res.status == 200){
+                dispatch(setUser(res.data));
+                router.visit('/dashboard')
 
-            localStorage.setItem('token', res.data.token)
-            router.visit('/dashboard')
+            }
+
         } catch (error: any) {
             if (error.response?.status === 422) {
                 setErrors(error.response.data.errors)
