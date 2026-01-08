@@ -1,28 +1,16 @@
-import { Head,router } from '@inertiajs/react'
-import { useEffect } from 'react'
-import {useSelector} from 'react-redux'
+import AuthProvider from '@/layouts/authProvider';
 
 export default function Dashboard() {
-    const user = useSelector((state)=>state.auth.user);
-    useEffect(()=>{
-        if(!user || user.role != 'admin'){
-            router.visit('/')
-        }
-    },[user])
+  return
+    {
+        <h1>Dashboard</h1>;
+    }
 
-
-    return (
-        <div className="p-6">
-            <Head title="Dashboard" />
-
-            <h1 className="text-2xl font-semibold mb-4">
-                Dashboard
-            </h1>
-
-            <p className="text-muted-foreground">
-                Welcome to your dashboard.
-            </p>
-        </div>
-    )
 }
+
+Dashboard.layout = (page: React.ReactNode) => (
+  <AuthProvider>
+    {page}
+  </AuthProvider>
+);
 

@@ -28,7 +28,10 @@ createInertiaApp({
     root.render(
       <StrictMode>
         <Provider store={store}>
-          <App {...props} />
+          {App.layout
+            ? App.layout(<App {...props} />)
+            : <App {...props} />
+          }
         </Provider>
       </StrictMode>
     )
