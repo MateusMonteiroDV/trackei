@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import axios from 'axios'
-import { Head } from '@inertiajs/react'
+import api from '@/lib/axios'
+import { Head,router } from '@inertiajs/react'
 
 import InputError from '@/components/input-error'
 import TextLink from '@/components/text-link'
@@ -35,13 +35,18 @@ export default function Login({
     const form = new FormData(e.currentTarget)
 
     try {
-      const res = await axios.post('/api/login', {
+      const res = await api.post('/api/login', {
         email: form.get('email'),
         password: form.get('password'),
         remember: !!form.get('remember'),
       })
-            console.log(res)
-        router.reload()
+        if(res.status == 200){
+
+        router.visit('/dashboard')
+
+     }
+
+
     } catch (error: any) {
       if (error.response?.status === 422) {
         setErrors(error.response.data.errors)

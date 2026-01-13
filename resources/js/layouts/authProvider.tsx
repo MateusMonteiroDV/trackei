@@ -1,10 +1,10 @@
 import ProtectRoute from '@/layouts/auth/auth-simple-layout';
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
 import { ReactNode } from 'react';
 import { router } from '@inertiajs/react'
-import {useEffect} from 'react'
+import {useEffect,useState} from 'react'
 import {Spinner} from '@/components/ui/spinner'
-import axios from 'axios'
+import api from '@/lib/axios'
 interface RootState {
 
     auth: {
@@ -22,25 +22,23 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const user = useSelector((state: RootState) => state.auth.user);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    axios.get('/api/me')
-      .then(res => {
-        if (res.data) {
-          dispatch(setUser(res.data));
-          router.visit('/dashboard', { replace: true });
-        } else {
-          router.visit('/login', { replace: true });
-        }
-      })
-      .catch(() => {
-        router.visit('/login', { replace: true });
-      })
-      .finally(() => setLoading(false));
-  }, []);
+useEffect(() => {
+   api.get('/api/me')
+    .then(res => {
+      dispatch(setUser(res.data));
+    })
+    .catch(() => {
+      router.visit('/login', { replace: true });
+    })
+    .finally(() => setLoading(false));
+}, []);
 
-  if (loading || !user) {
-    return <Spinner />;
-  }
+
+
+if (loading) return <Spinner />;
+
+if (!user) return null;
+
 
   return (
     <ProtectRoute role={user.role}>
