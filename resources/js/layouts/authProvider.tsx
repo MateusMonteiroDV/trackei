@@ -1,44 +1,54 @@
-import ProtectRoute from '@/layouts/auth/auth-simple-layout';
-import { useSelector,useDispatch } from 'react-redux';
-import { ReactNode } from 'react';
-import { router } from '@inertiajs/react'
-import {useEffect,useState} from 'react'
-import {Spinner} from '@/components/ui/spinner'
-import api from '@/lib/axios'
-interface RootState {
 
-    auth: {
-        user: {
-            role: 'admin' | 'driver' | 'client';
-        };
-    };
+import ProtectRoute from '@/layouts/auth/auth-simple-layout';
+import { useSelector, useDispatch } from 'react-redux';
+import { ReactNode, useEffect, useState } from 'react';
+import { router } from '@inertiajs/react';
+import { Spinner } from '@/components/ui/spinner';
+import api from '@/lib/axios';
+import { setUser } from '@/store/slices/authSlice';
+
+interface RootState {
+  auth: {
+    user: {
+      role: 'admin' | 'driver' | 'client';
+    } | null;
+  };
 }
 
 interface AuthProviderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
+
 export default function AuthProvider({ children }: AuthProviderProps) {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
+  const token = useSelector((state: RootState) => state.auth.token);
+    console.log(token)
   const [loading, setLoading] = useState(true);
 
 useEffect(() => {
-   api.get('/api/me')
-    .then(res => {
-      dispatch(setUser(res.data));
+    if (!token){
+       setLoading(false)
+        return;
+    }
+    api.get('/api/me', {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
     })
-    .catch(() => {
-      router.visit('/login', { replace: true });
+    .then((res) => {
+        dispatch(setUser(res.data));
     })
-    .finally(() => setLoading(false));
-}, []);
+    .catch((err) => {
+        console.error(err);
+    }).finally(()=>{
+            setLoading(false)
+    });
+}, [dispatch, token]);
 
+  if (loading) return <Spinner />;
 
-
-if (loading) return <Spinner />;
-
-if (!user) return null;
-
+  if (!user) return null;
 
   return (
     <ProtectRoute role={user.role}>
@@ -46,3 +56,4 @@ if (!user) return null;
     </ProtectRoute>
   );
 }
+

@@ -16,11 +16,15 @@ export const fetchUser = createAsyncThunk(
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
+    token: null as any,
     user: null as any,
     loading: false,
     authenticated: false,
   },
   reducers: {
+    setToken(state,action){
+        state.token = action.payload
+    },
     setUser(state, action) {
       state.user = action.payload
     },
@@ -48,5 +52,5 @@ const authSlice = createSlice({
   },
 })
 
-export const {setUser, logout } = authSlice.actions
+export const {setToken,setUser, logout } = authSlice.actions
 export default authSlice.reducer

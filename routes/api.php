@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [RegisterController::class, 'register']);
-Route::post('/login', [LoginController::class, 'login']);
+Route::middleware('web')->post('/login', [LoginController::class, 'login']);
 Route::post('/create-business',[BusinessController::class,'store']);
 
 
