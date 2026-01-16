@@ -1,44 +1,47 @@
-import '../css/app.css'
+import '../css/app.css';
 
-import { createInertiaApp } from '@inertiajs/react'
-import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { initializeTheme } from './hooks/use-appearance'
-import { configureEcho } from '@laravel/echo-react'
-import { Provider } from 'react-redux'
-import { store } from './store'
+import { createInertiaApp } from '@inertiajs/react';
+import { configureEcho } from '@laravel/echo-react';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { initializeTheme } from './hooks/use-appearance';
+import { persistor, store } from './store';
 
-configureEcho({ broadcaster: 'reverb' })
+configureEcho({ broadcaster: 'reverb' });
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel'
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
-  title: title => (title ? `${title} - ${appName}` : appName),
+    title: (title) => (title ? `${title} - ${appName}` : appName),
 
-  resolve: name =>
-    resolvePageComponent(
-      `./pages/${name}.tsx`,
-      import.meta.glob('./pages/**/*.tsx')
-    ),
+    resolve: (name) =>
+        resolvePageComponent(
+            `./pages/${name}.tsx`,
+            import.meta.glob('./pages/**/*.tsx'),
+        ),
 
-  setup({ el, App, props }) {
-    const root = createRoot(el)
+    setup({ el, App, props }) {
+        const root = createRoot(el);
 
-    root.render(
-      <StrictMode>
-        <Provider store={store}>
-          {App.layout
-            ? App.layout(<App {...props} />)
-            : <App {...props} />
-          }
-        </Provider>
-      </StrictMode>
-    )
-  },
+        root.render(
+            <Provider store={store}>
+                <PersistGate
+                    loading={<div>Loading...</div>}
+                    persistor={persistor}
+                >
+                    {App.layout ? (
+                        App.layout(<App {...props} />)
+                    ) : (
+                        <App {...props} />
+                    )}
+                </PersistGate>
+            </Provider>,
+        );
+    },
 
-  progress: { color: '#4b5563' },
-})
+    progress: { color: '#4b5563' },
+});
 
-initializeTheme()
-
+initializeTheme();

@@ -1,59 +1,45 @@
-
-import ProtectRoute from '@/layouts/auth/auth-simple-layout';
-import { useSelector, useDispatch } from 'react-redux';
-import { ReactNode, useEffect, useState } from 'react';
-import { router } from '@inertiajs/react';
 import { Spinner } from '@/components/ui/spinner';
-import api from '@/lib/axios';
-import { setUser } from '@/store/slices/authSlice';
+import ProtectRoute from '@/layouts/auth/auth-simple-layout';
+import { fetchUser } from '@/store/slices/authSlice';
+import { router } from '@inertiajs/react';
+import { ReactNode, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 interface RootState {
-  auth: {
-    user: {
-      role: 'admin' | 'driver' | 'client';
-    } | null;
-  };
+    auth: {
+        token: string | null;
+        user: {
+            role: 'admin' | 'driver' | 'client';
+        } | null;
+        loading: boolean;
+        authenticated: boolean;
+    };
 }
 
 interface AuthProviderProps {
-  children: ReactNode;
+    children: ReactNode;
 }
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  const dispatch = useDispatch();
-  const user = useSelector((state: RootState) => state.auth.user);
-  const token = useSelector((state: RootState) => state.auth.token);
-    console.log(token)
-  const [loading, setLoading] = useState(true);
+    const dispatch = useDispatch();
+    const { user, token, loading, authenticated } = useSelector(
+        (state: RootState) => state.auth,
+    );
 
-useEffect(() => {
-    if (!token){
-       setLoading(false)
-        return;
-    }
-    api.get('/api/me', {
-        headers: {
-            Authorization: `Bearer ${token}`
+    useEffect(() => {
+        if (!token) {
+            router.visit('/login');
+            return;
         }
-    })
-    .then((res) => {
-        dispatch(setUser(res.data));
-    })
-    .catch((err) => {
-        console.error(err);
-    }).finally(()=>{
-            setLoading(false)
-    });
-}, [dispatch, token]);
+        if (token && !authenticated) {
+            dispatch(fetchUser());
+        }
+    }, [dispatch, token, authenticated]);
 
-  if (loading) return <Spinner />;
+    if (loading) return <Spinner />;
 
-  if (!user) return null;
+    if (authenticated && user)
+        return <ProtectRoute role={user.role}>{children}</ProtectRoute>;
 
-  return (
-    <ProtectRoute role={user.role}>
-      {children}
-    </ProtectRoute>
-  );
+    return null;
 }
-
