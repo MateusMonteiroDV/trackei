@@ -17,7 +17,7 @@ class BusinessController extends Controller
 
     public function store(Request $req)
     {
-    DB::beginTransaction();
+        DB::beginTransaction();
         try {
             $data = $req->validate([
                 'name' => 'required|string|max:255|unique:business,name',
@@ -39,7 +39,7 @@ class BusinessController extends Controller
                 'business_id' => $business->id,
             ]);
 
-    DB::commit();
+            DB::commit();
             return response()->json([
                 'instruction' => 'Use this initial admin user to create your own admin user',
                 'message' => 'Business created successfully',
@@ -49,7 +49,6 @@ class BusinessController extends Controller
                     'password' => $password
                 ]
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error creating business',
@@ -60,44 +59,39 @@ class BusinessController extends Controller
 
     public function createAdmin(Request $req)
     {
-    try {
-        if ($req->user()->role !== 'admin') {
+        try {
+            if ($req->user()->role !== 'admin') {
+                return response()->json([
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+
+            $data = $req->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|string|min:8'
+            ]);
+
+            DB::beginTransaction();
+            $admin = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'role' => 'admin',
+                'business_id' => $req->user()->business_id
+            ]);
+
+            DB::commit();
+
             return response()->json([
-                'message' => 'Unauthorized'
-            ], 403);
+                'message' => 'Admin created successfully',
+                'admin' => $admin
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error creating admin',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $data = $req->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8'
-        ]);
-
-    DB::beginTransaction();
-        $admin = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role' => 'admin',
-            'business_id' => $req->user()->business_id
-        ]);
-
-    DB::commit();
-
-        return response()->json([
-            'message' => 'Admin created successfully',
-            'admin' => $admin
-        ], 201);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'Error creating admin',
-            'error' => $e->getMessage()
-        ], 500);
     }
 }
-}
-
-
-
-

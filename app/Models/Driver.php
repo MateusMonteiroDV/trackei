@@ -5,6 +5,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @mixin IdeHelperDriver
+ */
 class Driver extends Model
 {
     protected $fillable = [

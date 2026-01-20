@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
@@ -12,6 +13,7 @@ class NewPackageAvailable implements ShouldBroadcast
     public $packageId;
     public $trackingCode;
     public $deliveryAddress;
+    public $businessId;
 
     public function __construct($package)
     {

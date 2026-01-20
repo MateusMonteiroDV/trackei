@@ -10,30 +10,30 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [RegisterController::class, 'register']);
 Route::middleware('web')->post('/login', [LoginController::class, 'login']);
-Route::post('/create-business',[BusinessController::class,'store']);
+Route::post('/create-business', [BusinessController::class, 'store']);
 
 
-Route::middleware('auth:sanctum')->group(function() {
+Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/me', function(Request $request) {
+    Route::get('/me', function (Request $request) {
         return $request->user();
     });
 
-    Route::get('/admin-only', function(Request $request) {
+    Route::get('/admin-only', function (Request $request) {
         if ($request->user()->role !== 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
         return ['secret' => 'Admin content'];
     });
     //logic-admin
-    Route::post('/create-admin',[BusinessController::class,'createAdmin']);
+    Route::post('/create-admin', [BusinessController::class, 'createAdmin']);
     //logic-driver
-    Route::get('/drivers',[DriverController::class,'getDriver']);
-    Route::post('/create-driver',[DriverController::class,'createDriver']);
-    Route::delete('/delete-driver',[DriverController::class,'deleteDriver']);
-    Route::put('/edit-driver',[DriverController::class,'editDriver']);
-    Route::post('/driver/location',[DriverController::class,'sendLocationDriver']);
-    Route::post('/driver/accept-package/{packageId}',[DriverController::class,'acceptPackage']);
+    Route::get('/drivers', [DriverController::class, 'getDriver']);
+    Route::post('/create-driver', [DriverController::class, 'createDriver']);
+    Route::delete('/delete-driver', [DriverController::class, 'deleteDriver']);
+    Route::put('/edit-driver', [DriverController::class, 'editDriver']);
+    Route::post('/driver/location', [DriverController::class, 'sendLocationDriver']);
+    Route::post('/driver/accept-package/{packageId}', [DriverController::class, 'acceptPackage']);
 
 
     //logic-client
@@ -43,4 +43,3 @@ Route::middleware('auth:sanctum')->group(function() {
 Route::get('health', function () {
     return response()->json(['ok' => true]);
 });
-

@@ -1,0 +1,16 @@
+includes:
+  - vendor/nunomaduro/larastan/extension.neon
+
+parameters:
+  paths:
+    - app
+
+  level: 5
+
+  # Laravel / PHPStan sanity settings
+  treatPhpDocTypesAsCertain: false
+
+  ignoreErrors:
+    # Laravel Eloquent magic
+    - '#Call to an undefined static method Illuminate\\Database\\Eloquent\\Model::create#'
+
