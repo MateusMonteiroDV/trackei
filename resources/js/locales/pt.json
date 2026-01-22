@@ -1,0 +1,146 @@
+{
+    "common": {
+        "save": "Salvar",
+        "cancel": "Cancelar",
+        "delete": "Excluir",
+        "edit": "Editar",
+        "create": "Criar",
+        "update": "Atualizar",
+        "submit": "Enviar",
+        "loading": "Carregando...",
+        "error": "Erro",
+        "success": "Sucesso",
+        "close": "Fechar",
+        "back": "Voltar",
+        "next": "Próximo",
+        "previous": "Anterior",
+        "search": "Buscar",
+        "filter": "Filtrar",
+        "sort": "Ordenar",
+        "name": "Nome",
+        "email": "E-mail",
+        "password": "Senha",
+        "confirmPassword": "Confirmar senha",
+        "rememberMe": "Lembrar-me",
+        "forgotPassword": "Esqueceu a senha?",
+        "login": "Entrar",
+        "register": "Cadastrar",
+        "logout": "Sair",
+        "dashboard": "Painel",
+        "settings": "Configurações",
+        "profile": "Perfil",
+        "appearance": "Aparência"
+    },
+    "auth": {
+        "login": {
+            "title": "Entre na sua conta",
+            "description": "Digite seu e-mail e senha abaixo",
+            "emailLabel": "Endereço de e-mail",
+            "emailPlaceholder": "Digite seu endereço de e-mail",
+            "passwordLabel": "Senha",
+            "passwordPlaceholder": "Digite sua senha",
+            "loginButton": "Entrar",
+            "noAccount": "Não tem uma conta?",
+            "signUp": "Cadastrar",
+            "status": "Status"
+        },
+        "register": {
+            "title": "Crie sua conta",
+            "description": "Digite suas informações abaixo para começar",
+            "nameLabel": "Nome",
+            "namePlaceholder": "Digite seu nome completo",
+            "emailLabel": "Endereço de e-mail",
+            "emailPlaceholder": "Digite seu endereço de e-mail",
+            "passwordLabel": "Senha",
+            "passwordPlaceholder": "Crie uma senha",
+            "confirmPasswordLabel": "Confirmar senha",
+            "confirmPasswordPlaceholder": "Confirme sua senha",
+            "createAccountButton": "Criar conta",
+            "haveAccount": "Já tem uma conta?",
+            "login": "Entrar"
+        },
+        "twoFactor": {
+            "recoveryCodeLabel": "Código de recuperação",
+            "recoveryCodePlaceholder": "Digite o código de recuperação",
+            "authenticationCodeLabel": "Código de autenticação"
+        },
+        "confirmPassword": {
+            "passwordLabel": "Senha",
+            "passwordPlaceholder": "Digite sua senha"
+        },
+        "resetPassword": {
+            "emailLabel": "E-mail",
+            "passwordLabel": "Senha",
+            "passwordPlaceholder": "Digite a nova senha",
+            "confirmPasswordLabel": "Confirmar senha",
+            "confirmPasswordPlaceholder": "Confirme a nova senha"
+        },
+        "forgotPassword": {
+            "emailLabel": "Endereço de e-mail",
+            "emailPlaceholder": "Digite seu endereço de e-mail"
+        }
+    },
+    "dashboard": {
+        "title": "Painel",
+        "welcome": "Bem-vindo ao seu painel"
+    },
+    "settings": {
+        "title": "Configurações",
+        "profile": {
+            "title": "Informações do Perfil",
+            "description": "Atualize as informações do perfil e endereço de e-mail da sua conta.",
+            "nameLabel": "Nome",
+            "emailLabel": "E-mail",
+            "currentPasswordLabel": "Senha Atual",
+            "newPasswordLabel": "Nova Senha",
+            "confirmPasswordLabel": "Confirmar Senha",
+            "photoLabel": "Foto",
+            "selectPhoto": "Selecionar Uma Nova Foto",
+            "removePhoto": "Remover Foto",
+            "saveButton": "Salvar",
+            "saved": "Salvo.",
+            "deleteAccount": {
+                "title": "Excluir Conta",
+                "description": "Excluir permanentemente sua conta.",
+                "deleteButton": "Excluir Conta",
+                "confirmPassword": "Uma vez que sua conta seja excluída, todos os recursos e dados serão permanentemente excluídos. Por favor, digite sua senha para confirmar que deseja excluir permanentemente sua conta.",
+                "passwordLabel": "Senha"
+            }
+        },
+        "password": {
+            "title": "Atualizar Senha",
+            "description": "Certifique-se de que sua conta use uma senha longa e aleatória para permanecer segura.",
+            "currentPasswordLabel": "Senha Atual",
+            "newPasswordLabel": "Nova Senha",
+            "confirmPasswordLabel": "Confirmar Senha",
+            "saveButton": "Salvar"
+        },
+        "appearance": {
+            "title": "Configurações de Aparência",
+            "description": "Atualize as configurações de aparência da sua conta.",
+            "theme": "Tema",
+            "light": "Claro",
+            "dark": "Escuro",
+            "system": "Sistema",
+            "language": "Idioma",
+            "english": "Inglês",
+            "spanish": "Espanhol",
+            "french": "Francês",
+            "german": "Alemão",
+            "portuguese": "Português"
+        }
+    },
+    "validation": {
+        "required": "Este campo é obrigatório",
+        "email": "Por favor digite um endereço de e-mail válido",
+        "minLength": "Este campo deve ter pelo menos {{count}} caracteres",
+        "maxLength": "Este campo deve ter no máximo {{count}} caracteres",
+        "passwordMismatch": "As senhas não coincidem"
+    },
+    "errors": {
+        "generic": "Algo deu errado. Por favor tente novamente.",
+        "network": "Erro de rede. Por favor verifique sua conexão.",
+        "unauthorized": "Você não está autorizado para realizar esta ação.",
+        "notFound": "O recurso solicitado não foi encontrado."
+    }
+}

@@ -1,21 +1,19 @@
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-    InputOTP,
-    InputOTPGroup,
-    InputOTPSlot,
-} from '@/components/ui/input-otp';
+import { Label } from '@/components/ui/label';
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
 import AuthLayout from '@/layouts/auth-layout';
 import { store } from '@/routes/two-factor/login';
 import { Form, Head } from '@inertiajs/react';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function TwoFactorChallenge() {
     const [showRecoveryInput, setShowRecoveryInput] = useState<boolean>(false);
     const [code, setCode] = useState<string>('');
+    const { t } = useTranslation();
 
     const authConfigContent = useMemo<{
         title: string;
@@ -62,20 +60,34 @@ export default function TwoFactorChallenge() {
                     {({ errors, processing, clearErrors }) => (
                         <>
                             {showRecoveryInput ? (
-                                <>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="recovery_code">
+                                        {t('auth.twoFactor.recoveryCodeLabel')}
+                                    </Label>
                                     <Input
+                                        id="recovery_code"
                                         name="recovery_code"
                                         type="text"
-                                        placeholder="Enter recovery code"
+                                        placeholder={t(
+                                            'auth.twoFactor.recoveryCodePlaceholder',
+                                        )}
                                         autoFocus={showRecoveryInput}
                                         required
                                     />
                                     <InputError
                                         message={errors.recovery_code}
                                     />
-                                </>
+                                </div>
                             ) : (
                                 <div className="flex flex-col items-center justify-center space-y-3 text-center">
+                                    <Label
+                                        htmlFor="code"
+                                        className="text-center"
+                                    >
+                                        {t(
+                                            'auth.twoFactor.authenticationCodeLabel',
+                                        )}
+                                    </Label>
                                     <div className="flex w-full items-center justify-center">
                                         <InputOTP
                                             name="code"

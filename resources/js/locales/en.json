@@ -1,0 +1,146 @@
+{
+    "common": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "create": "Create",
+        "update": "Update",
+        "submit": "Submit",
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "close": "Close",
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous",
+        "search": "Search",
+        "filter": "Filter",
+        "sort": "Sort",
+        "name": "Name",
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "rememberMe": "Remember me",
+        "forgotPassword": "Forgot password?",
+        "login": "Log in",
+        "register": "Sign up",
+        "logout": "Log out",
+        "dashboard": "Dashboard",
+        "settings": "Settings",
+        "profile": "Profile",
+        "appearance": "Appearance"
+    },
+    "auth": {
+        "login": {
+            "title": "Log in to your account",
+            "description": "Enter your email and password below",
+            "emailLabel": "Email address",
+            "emailPlaceholder": "Enter your email address",
+            "passwordLabel": "Password",
+            "passwordPlaceholder": "Enter your password",
+            "loginButton": "Log in",
+            "noAccount": "Don't have an account?",
+            "signUp": "Sign up",
+            "status": "Status"
+        },
+        "register": {
+            "title": "Create your account",
+            "description": "Enter your information below to get started",
+            "nameLabel": "Name",
+            "namePlaceholder": "Enter your full name",
+            "emailLabel": "Email address",
+            "emailPlaceholder": "Enter your email address",
+            "passwordLabel": "Password",
+            "passwordPlaceholder": "Create a password",
+            "confirmPasswordLabel": "Confirm password",
+            "confirmPasswordPlaceholder": "Confirm your password",
+            "createAccountButton": "Create account",
+            "haveAccount": "Already have an account?",
+            "login": "Log in"
+        },
+        "twoFactor": {
+            "recoveryCodeLabel": "Recovery Code",
+            "recoveryCodePlaceholder": "Enter recovery code",
+            "authenticationCodeLabel": "Authentication Code"
+        },
+        "confirmPassword": {
+            "passwordLabel": "Password",
+            "passwordPlaceholder": "Enter your password"
+        },
+        "resetPassword": {
+            "emailLabel": "Email",
+            "passwordLabel": "Password",
+            "passwordPlaceholder": "Enter new password",
+            "confirmPasswordLabel": "Confirm password",
+            "confirmPasswordPlaceholder": "Confirm new password"
+        },
+        "forgotPassword": {
+            "emailLabel": "Email address",
+            "emailPlaceholder": "Enter your email address"
+        }
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "welcome": "Welcome to your dashboard"
+    },
+    "settings": {
+        "title": "Settings",
+        "profile": {
+            "title": "Profile Information",
+            "description": "Update your account's profile information and email address.",
+            "nameLabel": "Name",
+            "emailLabel": "Email",
+            "currentPasswordLabel": "Current Password",
+            "newPasswordLabel": "New Password",
+            "confirmPasswordLabel": "Confirm Password",
+            "photoLabel": "Photo",
+            "selectPhoto": "Select A New Photo",
+            "removePhoto": "Remove Photo",
+            "saveButton": "Save",
+            "saved": "Saved.",
+            "deleteAccount": {
+                "title": "Delete Account",
+                "description": "Permanently delete your account.",
+                "deleteButton": "Delete Account",
+                "confirmPassword": "Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.",
+                "passwordLabel": "Password"
+            }
+        },
+        "password": {
+            "title": "Update Password",
+            "description": "Ensure your account is using a long, random password to stay secure.",
+            "currentPasswordLabel": "Current Password",
+            "newPasswordLabel": "New Password",
+            "confirmPasswordLabel": "Confirm Password",
+            "saveButton": "Save"
+        },
+        "appearance": {
+            "title": "Appearance Settings",
+            "description": "Update your account's appearance settings.",
+            "theme": "Theme",
+            "light": "Light",
+            "dark": "Dark",
+            "system": "System",
+            "language": "Language",
+            "english": "English",
+            "spanish": "Spanish",
+            "french": "French",
+            "german": "German",
+            "portuguese": "Portuguese"
+        }
+    },
+    "validation": {
+        "required": "This field is required",
+        "email": "Please enter a valid email address",
+        "minLength": "This field must be at least {{count}} characters",
+        "maxLength": "This field must be at most {{count}} characters",
+        "passwordMismatch": "Passwords do not match"
+    },
+    "errors": {
+        "generic": "Something went wrong. Please try again.",
+        "network": "Network error. Please check your connection.",
+        "unauthorized": "You are not authorized to perform this action.",
+        "notFound": "The requested resource was not found."
+    }
+}

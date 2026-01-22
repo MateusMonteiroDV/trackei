@@ -8,6 +8,8 @@ import { store } from '@/routes/password/confirm';
 import { Form, Head } from '@inertiajs/react';
 
 export default function ConfirmPassword() {
+    const { t } = useTranslation();
+
     return (
         <AuthLayout
             title="Confirm your password"
@@ -19,12 +21,16 @@ export default function ConfirmPassword() {
                 {({ processing, errors }) => (
                     <div className="space-y-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="password">Password</Label>
+                            <Label htmlFor="password">
+                                {t('auth.confirmPassword.passwordLabel')}
+                            </Label>
                             <Input
                                 id="password"
                                 type="password"
                                 name="password"
-                                placeholder="Password"
+                                placeholder={t(
+                                    'auth.confirmPassword.passwordPlaceholder',
+                                )}
                                 autoComplete="current-password"
                                 autoFocus
                             />
