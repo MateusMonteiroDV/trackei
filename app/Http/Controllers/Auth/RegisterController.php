@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {
@@ -31,16 +31,15 @@ class RegisterController extends Controller
             $token = $user->createToken('api_token')->plainTextToken;
 
             return response()->json([
-                'user' => $user,
-                'token' => $token
-            ], 201);
+                'message' => 'Registration successful',
+                'token' => $token,
+            ], 200);
 
         } catch (QueryException $e) {
             return response()->json([
                 'message' => 'Error registering user',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 }
-
