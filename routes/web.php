@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -12,14 +11,18 @@ Route::get('/register', function () {
     return Inertia::render('auth/register');
 })->name('register');
 
-
 Route::get('/', function () {
-    return Inertia::render('welcome', [
-    ]);
-});
+    return Inertia::render('welcome', []);
+})->name('home');
+
+
 
 Route::get('/dashboard', function () {
     return Inertia::render('auth/dashboard');
 })->name('dashboard');
 
-require __DIR__.'/settings.php';
+Route::get('/create-business', function () {
+    return Inertia::render('auth/create-business');
+})->name('create-business');
+
+require __DIR__ . '/settings.php';

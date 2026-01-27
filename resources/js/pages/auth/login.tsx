@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import AuthSimpleLayout from '@/layouts/auth-simple-layout';
 
 import { register } from '@/routes';
 import { request } from '@/routes/password';
@@ -62,95 +63,87 @@ export default function Login({
         <>
             <Head title={t('common.login')} />
 
-            <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-8">
-                <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-lg sm:p-8">
-                    <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl">
-                        {t('auth.login.title')}
-                    </h1>
-                    <p className="mt-1 mb-5 text-sm text-gray-600 sm:mb-6">
-                        {t('auth.login.description')}
+            <AuthSimpleLayout
+                title={t('auth.login.title')}
+                description={t('auth.login.description')}
+                footerLink={
+                    canRegister
+                        ? {
+                              text: t('auth.login.noAccount'),
+                              href: register().toString(),
+                              label: t('auth.login.signUp'),
+                          }
+                        : undefined
+                }
+            >
+                <form onSubmit={submit} className="space-y-4 sm:space-y-5">
+                    {/* Email */}
+                    <div className="space-y-1.5">
+                        <Label htmlFor="email">
+                            {t('auth.login.emailLabel')}
+                        </Label>
+                        <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            required
+                            autoComplete="email"
+                            placeholder={t('auth.login.emailPlaceholder')}
+                        />
+                        <InputError message={errors.email} />
+                    </div>
+
+                    {/* Password */}
+                    <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="password">
+                                {t('auth.login.passwordLabel')}
+                            </Label>
+                            {canResetPassword && (
+                                <TextLink
+                                    href={request().toString()}
+                                    className="text-sm"
+                                >
+                                    {t('common.forgotPassword')}
+                                </TextLink>
+                            )}
+                        </div>
+                        <Input
+                            id="password"
+                            name="password"
+                            type="password"
+                            required
+                            autoComplete="current-password"
+                            placeholder={t('auth.login.passwordPlaceholder')}
+                        />
+                        <InputError message={errors.password} />
+                    </div>
+
+                    <div className="flex items-center space-x-2 pt-1">
+                        <Checkbox id="remember" name="remember" />
+                        <Label htmlFor="remember" className="text-sm">
+                            {t('common.rememberMe')}
+                        </Label>
+                    </div>
+
+                    {/* Submit */}
+                    <Button
+                        type="submit"
+                        disabled={processing}
+                        variant="blue"
+                        className="flex w-full items-center justify-center gap-2"
+                    >
+                        {processing && <Spinner className="h-4 w-4" />}
+                        {t('auth.login.loginButton')}
+                    </Button>
+                </form>
+
+                {status && (
+                    <p className="mt-3 text-center text-sm font-medium text-green-600 sm:mt-4">
+                        {status}
                     </p>
-
-                    <form onSubmit={submit} className="space-y-4 sm:space-y-5">
-                        {/* Email */}
-                        <div className="space-y-1.5">
-                            <Label htmlFor="email">
-                                {t('auth.login.emailLabel')}
-                            </Label>
-                            <Input
-                                id="email"
-                                name="email"
-                                type="email"
-                                required
-                                autoComplete="email"
-                                placeholder={t('auth.login.emailPlaceholder')}
-                            />
-                            <InputError message={errors.email} />
-                        </div>
-
-                        {/* Password */}
-                        <div className="space-y-1.5">
-                            <div className="flex items-center justify-between">
-                                <Label htmlFor="password">
-                                    {t('auth.login.passwordLabel')}
-                                </Label>
-                                {canResetPassword && (
-                                    <TextLink
-                                        href={request()}
-                                        className="text-sm"
-                                    >
-                                        {t('common.forgotPassword')}
-                                    </TextLink>
-                                )}
-                            </div>
-                            <Input
-                                id="password"
-                                name="password"
-                                type="password"
-                                required
-                                autoComplete="current-password"
-                                placeholder={t(
-                                    'auth.login.passwordPlaceholder',
-                                )}
-                            />
-                            <InputError message={errors.password} />
-                        </div>
-
-                        <div className="flex items-center space-x-2 pt-1">
-                            <Checkbox id="remember" name="remember" />
-                            <Label htmlFor="remember" className="text-sm">
-                                {t('common.rememberMe')}
-                            </Label>
-                        </div>
-
-                        {/* Submit */}
-                        <Button
-                            type="submit"
-                            disabled={processing}
-                            variant="blue"
-                            className="flex w-full items-center justify-center gap-2"
-                        >
-                            {processing && <Spinner className="h-4 w-4" />}
-                            {t('auth.login.loginButton')}
-                        </Button>
-                    </form>
-
-                    {canRegister && (
-                        <p className="mt-5 text-center text-sm text-gray-500 sm:mt-6">
-                            {t('auth.login.noAccount')}{' '}
-                            <TextLink href={register()}>
-                                {t('auth.login.signUp')}
-                            </TextLink>
-                        </p>
-                    )}
-
-                    {status && (
-                        <p className="mt-3 text-center text-sm font-medium text-green-600 sm:mt-4">
-                            {status}
-                        </p>
-                    )}
-                </div>
-            </div>
+                )}
+            </AuthSimpleLayout>
         </>
     );
 }
