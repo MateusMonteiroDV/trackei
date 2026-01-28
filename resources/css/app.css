@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -139,5 +139,75 @@
 
     body {
         @apply bg-background text-foreground;
+    }
+}
+
+@layer utilities {
+    /* Ensure SidebarTrigger is always visible on mobile */
+    @media (max-width: 767px) {
+        [data-sidebar='trigger'] {
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+            /* Add explicit default styles for mobile */
+            background-color: oklch(0.97 0 0) !important;
+            color: oklch(0.205 0 0) !important;
+            border: 1px solid oklch(0.922 0 0) !important;
+        }
+
+        /* Dark mode adjustments */
+        .dark [data-sidebar='trigger'] {
+            background-color: oklch(0.269 0 0) !important;
+            color: oklch(0.985 0 0) !important;
+            border: 1px solid oklch(0.269 0 0) !important;
+        }
+
+        /* Hover states for mobile */
+        [data-sidebar='trigger']:hover {
+            background-color: oklch(0.922 0 0) !important;
+        }
+
+        .dark [data-sidebar='trigger']:hover {
+            background-color: oklch(0.439 0 0) !important;
+        }
+
+        /* Ensure mobile sidebar sheet has proper contrast */
+        [data-sidebar='sidebar'][data-mobile='true'] {
+            background-color: oklch(0.985 0 0) !important;
+            color: oklch(0.145 0 0) !important;
+            border: 1px solid oklch(0.922 0 0) !important;
+        }
+
+        .dark [data-sidebar='sidebar'][data-mobile='true'] {
+            background-color: oklch(0.205 0 0) !important;
+            color: oklch(0.985 0 0) !important;
+            border: 1px solid oklch(0.269 0 0) !important;
+        }
+
+        /* Fix mobile sidebar navigation items */
+        [data-sidebar='sidebar'][data-mobile='true']
+            [data-sidebar='menu-button'] {
+            color: oklch(0.145 0 0) !important;
+        }
+
+        .dark
+            [data-sidebar='sidebar'][data-mobile='true']
+            [data-sidebar='menu-button'] {
+            color: oklch(0.985 0 0) !important;
+        }
+
+        [data-sidebar='sidebar'][data-mobile='true']
+            [data-sidebar='menu-button']:hover {
+            background-color: oklch(0.97 0 0) !important;
+            color: oklch(0.205 0 0) !important;
+        }
+
+        .dark
+            [data-sidebar='sidebar'][data-mobile='true']
+            [data-sidebar='menu-button']:hover {
+            background-color: oklch(0.269 0 0) !important;
+            color: oklch(0.985 0 0) !important;
+        }
     }
 }
