@@ -15,8 +15,6 @@ Route::get('/', function () {
     return Inertia::render('welcome', []);
 })->name('home');
 
-
-
 Route::get('/dashboard', function () {
     return Inertia::render('auth/dashboard');
 })->name('dashboard');
@@ -25,4 +23,8 @@ Route::get('/create-business', function () {
     return Inertia::render('auth/create-business');
 })->name('create-business');
 
-require __DIR__ . '/settings.php';
+Route::get('/profile', function () {
+    return Inertia::render('profile');
+})->name('profile');
+
+require __DIR__.'/settings.php';

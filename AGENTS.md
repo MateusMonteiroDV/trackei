@@ -2,6 +2,18 @@
 
 This document provides comprehensive guidelines for agentic coding assistants working on the Trackei codebase. It covers build commands, testing, code style, and development conventions.
 
+Trackei is a Laravel + Inertia.js + React application with TypeScript, using Tailwind CSS and Shadcn/ui components. The application includes multi-role authentication (users, businesses, clients, drivers) and real-time package tracking features.
+
+## Architecture Overview
+
+- **Backend**: Laravel 12.x with PHP 8.2+
+- **Frontend**: React 19.x with TypeScript, Inertia.js for SPA-like navigation
+- **Styling**: Tailwind CSS v4.0+ with Shadcn/ui components
+- **State Management**: Redux Toolkit with Redux Persist
+- **Authentication**: Laravel Fortify + Sanctum for API authentication
+- **Real-time**: Laravel Reverb for WebSocket connections
+- **Testing**: Pest for PHP tests, manual testing for frontend
+
 ## Table of Contents
 
 1. [Build and Development Commands](#build-and-development-commands)
@@ -14,7 +26,7 @@ This document provides comprehensive guidelines for agentic coding assistants wo
 
 ## Build and Development Commands
 
-### Full Development Environment
+##### Full Development Environment
 
 ```bash
 composer run dev  # Runs Laravel server, queue worker, logs, and Vite dev server concurrently
@@ -91,8 +103,9 @@ Tests run automatically on pushes/PRs to `develop` and `main` branches via GitHu
 ### Import Organization
 
 - Group imports by type: external libraries, internal modules, types
-- Use absolute imports with `@/` alias for TypeScript
-- Organize imports with `prettier-plugin-organize-imports`
+- Use absolute imports with `@/` alias for TypeScript (configured in components.json)
+- Organize imports automatically with `prettier-plugin-organize-imports`
+- Import aliases available: `@/components`, `@/lib`, `@/ui`, `@/hooks`
 
 ### Naming Conventions
 
@@ -351,7 +364,7 @@ npm run format:check       # Prettier check
 ### CI/CD Quality Gates
 
 - **GitHub Actions**: Runs on pushes to `develop`/`main` and PRs
-- **PHPStan**: Static analysis at level 5
+- **PHPStan**: Static analysis at level 5 (configured in phpstan.neon)
 - **Pest**: Full test suite
 - **ESLint + Prettier**: Frontend code quality
 - **TypeScript**: Type checking

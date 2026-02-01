@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import AuthSimpleLayout from '@/layouts/auth-simple-layout';
 
 import { login } from '@/routes';
 import { useDispatch } from 'react-redux';
@@ -51,7 +50,7 @@ export default function Register() {
         <>
             <Head title={t('common.register')} />
 
-            <AuthSimpleLayout
+            <AuthCardLayout
                 title={t('auth.register.title')}
                 description={t('auth.register.description')}
                 footerLink={{
@@ -138,7 +137,7 @@ export default function Register() {
                         {t('auth.register.createAccountButton')}
                     </Button>
                 </form>
-            </AuthSimpleLayout>
+            </AuthCardLayout>
         </>
     );
 }

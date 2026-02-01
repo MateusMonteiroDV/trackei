@@ -14,10 +14,18 @@ export default function AuthCardLayout({
     children,
     title,
     description,
+    footerLink,
 }: PropsWithChildren<{
     name?: string;
     title?: string;
     description?: string;
+    footerLink?:
+        | {
+              text: string;
+              href: string;
+              label: string;
+          }
+        | undefined;
 }>) {
     return (
         <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
@@ -41,6 +49,17 @@ export default function AuthCardLayout({
                             {children}
                         </CardContent>
                     </Card>
+                    {footerLink && (
+                        <p className="text-center text-sm text-muted-foreground">
+                            {footerLink.text}{' '}
+                            <Link
+                                href={footerLink.href}
+                                className="font-medium text-primary hover:underline"
+                            >
+                                {footerLink.label}
+                            </Link>
+                        </p>
+                    )}
                 </div>
             </div>
         </div>

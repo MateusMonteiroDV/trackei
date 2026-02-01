@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import AuthSimpleLayout from '@/layouts/auth-simple-layout';
+import AuthCardLayout from '@/layouts/auth/auth-card-layout';
 
 import { register } from '@/routes';
 import { request } from '@/routes/password';
@@ -63,7 +63,7 @@ export default function Login({
         <>
             <Head title={t('common.login')} />
 
-            <AuthSimpleLayout
+            <AuthCardLayout
                 title={t('auth.login.title')}
                 description={t('auth.login.description')}
                 footerLink={
@@ -143,7 +143,7 @@ export default function Login({
                         {status}
                     </p>
                 )}
-            </AuthSimpleLayout>
+            </AuthCardLayout>
         </>
     );
 }
