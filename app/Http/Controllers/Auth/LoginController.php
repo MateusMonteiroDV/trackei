@@ -15,7 +15,7 @@ class LoginController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (!Auth::attempt($credentials)) {
+        if (! Auth::attempt($credentials)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
@@ -26,9 +26,13 @@ class LoginController extends Controller
         return response()->json([
             'message' => 'Login successful',
             'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'business_id' => $user->business_id,
+            ],
         ]);
     }
-
 }
-
-

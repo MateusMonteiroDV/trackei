@@ -22,8 +22,11 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Driver> $drivers
  * @property-read int|null $drivers_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Package> $packages
+ * @property-read int|null $packages_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
  * @property-read int|null $users_count
+ * @method static \Database\Factories\BusinessFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business query()
@@ -34,21 +37,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business wherePhone($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereUpdatedAt($value)
- * @mixin \Eloquent
  */
-	#[\AllowDynamicProperties]
-	class IdeHelperBusiness {}
-}
-
-namespace App\Models{
-/**
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Client newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Client newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Client query()
- * @mixin \Eloquent
- */
-	#[\AllowDynamicProperties]
-	class IdeHelperClient {}
+	class Business extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -76,10 +66,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Driver whereVehicle($value)
- * @mixin \Eloquent
  */
-	#[\AllowDynamicProperties]
-	class IdeHelperDriver {}
+	class Driver extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -95,6 +83,8 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $business_id
  * @property int|null $client_id
+ * @property-read \App\Models\Business|null $business
+ * @property-read \App\Models\User|null $client
  * @property-read \App\Models\Driver|null $driver
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Package newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Package newQuery()
@@ -110,10 +100,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Package whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Package whereTrackingCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Package whereUpdatedAt($value)
- * @mixin \Eloquent
  */
-	#[\AllowDynamicProperties]
-	class IdeHelperPackage {}
+	class Package extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -141,9 +129,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRole($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
- * @mixin \Eloquent
  */
-	#[\AllowDynamicProperties]
-	class IdeHelperUser {}
+	class User extends \Eloquent {}
 }
 

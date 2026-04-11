@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @mixin IdeHelperBusiness
@@ -11,8 +11,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Business extends Model
 {
     use HasFactory;
-
-    protected $table = 'business';
 
     protected $fillable = [
         'name',
@@ -30,5 +28,9 @@ class Business extends Model
     {
         return $this->hasMany(Driver::class);
     }
-}
 
+    public function packages()
+    {
+        return $this->hasMany(Package::class);
+    }
+}

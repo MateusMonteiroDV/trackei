@@ -11,7 +11,9 @@ class DriverLocationUpdated implements ShouldBroadcast
     use InteractsWithSockets;
 
     public $driverId;
+
     public $lat;
+
     public $lng;
 
     public function __construct($driverId, $lat, $lng)
@@ -23,7 +25,6 @@ class DriverLocationUpdated implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new Channel('driver.' . $this->driverId);
+        return new Channel('driver.'.$this->driverId);
     }
 }
-

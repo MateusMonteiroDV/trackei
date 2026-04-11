@@ -11,8 +11,11 @@ class NewPackageAvailable implements ShouldBroadcast
     use InteractsWithSockets;
 
     public $packageId;
+
     public $trackingCode;
+
     public $deliveryAddress;
+
     public $businessId;
 
     public function __construct($package)
@@ -25,8 +28,9 @@ class NewPackageAvailable implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new Channel('drivers.available.' . $this->businessId);
+        return new Channel('drivers.available.'.$this->businessId);
     }
+
     public function broadcastAs()
     {
         return 'new-package';

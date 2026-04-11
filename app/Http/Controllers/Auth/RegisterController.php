@@ -23,10 +23,8 @@ class RegisterController extends Controller
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
+                'role' => 'client',
             ]);
-
-            $user->role = 'client';
-            $user->save();
 
             $token = $user->createToken('api_token')->plainTextToken;
 

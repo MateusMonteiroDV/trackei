@@ -1,394 +1,156 @@
 # AGENTS.md - Development Guidelines for Trackei
 
-This document provides comprehensive guidelines for agentic coding assistants working on the Trackei codebase. It covers build commands, testing, code style, and development conventions.
+Laravel 12 + Inertia.js + React 19 + TypeScript + Tailwind CSS v4 + Shadcn/ui. Multi-role auth (users, businesses, clients, drivers) with real-time package tracking.
 
-Trackei is a Laravel + Inertia.js + React application with TypeScript, using Tailwind CSS and Shadcn/ui components. The application includes multi-role authentication (users, businesses, clients, drivers) and real-time package tracking features.
+## Commands
 
-## Architecture Overview
-
-- **Backend**: Laravel 12.x with PHP 8.2+
-- **Frontend**: React 19.x with TypeScript, Inertia.js for SPA-like navigation
-- **Styling**: Tailwind CSS v4.0+ with Shadcn/ui components
-- **State Management**: Redux Toolkit with Redux Persist
-- **Authentication**: Laravel Fortify + Sanctum for API authentication
-- **Real-time**: Laravel Reverb for WebSocket connections
-- **Testing**: Pest for PHP tests, manual testing for frontend
-
-## Table of Contents
-
-1. [Build and Development Commands](#build-and-development-commands)
-2. [Testing](#testing)
-3. [Code Style Guidelines](#code-style-guidelines)
-4. [PHP/Laravel Conventions](#phplaravel-conventions)
-5. [Frontend (React/TypeScript) Conventions](#frontend-reacttypescript-conventions)
-6. [File Structure and Organization](#file-structure-and-organization)
-7. [Quality Assurance](#quality-assurance)
-
-## Build and Development Commands
-
-##### Full Development Environment
+### Development
 
 ```bash
-composer run dev  # Runs Laravel server, queue worker, logs, and Vite dev server concurrently
+composer run dev       # Full dev: server, queue, logs, Vite
+npm run dev            # Frontend only
+php artisan serve      # Laravel server
+php artisan queue:listen --tries=1  # Queue worker
 ```
 
-### Individual Services
+### Build
 
 ```bash
-# Laravel server
-php artisan serve
-
-# Queue worker
-php artisan queue:listen --tries=1
-
-# Logs
-php artisan pail --timeout=0
-
-# Frontend dev server
-npm run dev
+npm run build          # Production build
+npm run build:ssr      # SSR build
+composer run setup     # Full setup (install, migrate, build)
 ```
 
-### Build Commands
+### Testing
 
 ```bash
-# Production build
-npm run build
-
-# SSR build
-npm run build:ssr
+./vendor/bin/pest                           # All tests
+./vendor/bin/pest tests/Feature/AuthTest    # Single file
+./vendor/bin/pest --filter "test name"      # Single test by name
+./vendor/bin/pest --coverage                # With coverage
+composer run test                           # Via composer (config:clear + test)
 ```
 
-### Initial Setup
+### Quality Checks
 
 ```bash
-composer run setup  # Installs dependencies, generates keys, migrates DB, builds assets
+./vendor/bin/pint        # PHP formatting
+./vendor/bin/phpstan     # PHP static analysis
+npm run lint             # ESLint (auto-fix)
+npm run types            # TypeScript check
+npm run format:check     # Prettier check
+npm run format           # Prettier fix
 ```
 
-## Testing
-
-### PHP Testing with Pest
-
-```bash
-# Run all tests
-./vendor/bin/pest
-
-# Run specific test file
-./vendor/bin/pest tests/Feature/DashboardTest.php
-
-# Run single test by name
-./vendor/bin/pest --filter "profile page is displayed"
-
-# Run tests with coverage
-./vendor/bin/pest --coverage
-```
-
-### Frontend Testing
-
-_No frontend testing framework currently configured. Use manual testing and TypeScript type checking._
-
-### CI/CD Testing
-
-Tests run automatically on pushes/PRs to `develop` and `main` branches via GitHub Actions.
-
-## Code Style Guidelines
+## Code Style
 
 ### General
 
-- Use 4 spaces for indentation (configured in `.editorconfig`)
-- UTF-8 encoding, LF line endings
-- Trim trailing whitespace, add final newlines
-- Use single quotes for strings (JavaScript) / double quotes for strings (PHP)
-- Maximum line length: 80 characters (Prettier)
+- 4 spaces indentation, 80 char max line width
+- Single quotes (JS/TS), double quotes (PHP)
+- UTF-8, LF line endings, trailing newline
+- No emojis in code
 
-### Import Organization
+### PHP/Laravel
 
-- Group imports by type: external libraries, internal modules, types
-- Use absolute imports with `@/` alias for TypeScript (configured in components.json)
-- Organize imports automatically with `prettier-plugin-organize-imports`
-- Import aliases available: `@/components`, `@/lib`, `@/ui`, `@/hooks`
-
-### Naming Conventions
-
-- **Files**: PascalCase for components, camelCase for utilities
-- **Functions/Variables**: camelCase
-- **Classes**: PascalCase
-- **Constants**: UPPER_SNAKE_CASE
-- **Types/Interfaces**: PascalCase with descriptive names
-
-### Error Handling
-
-- Use try-catch blocks for expected errors
-- Throw specific exception types, not generic Error
-- Validate input data early with Laravel Form Requests
-- Use Laravel's validation with `validate()` method
-
-## PHP/Laravel Conventions
-
-### Code Style
-
-- Follow PSR-12 standards (enforced by Laravel Pint)
-- Use type hints for all method parameters and return values
-- Add PHPDoc blocks for public methods and complex logic
-- Use dependency injection in controllers
-
-### Controller Structure
+- PSR-12 standard (enforced by Pint)
+- Type hints on all parameters and returns
+- PHPDoc for public methods and complex logic
+- Dependency injection in controllers
+- Form Requests for validation
+- Single quotes for array keys: `['key' => 'value']`
 
 ```php
-<?php
-
-namespace App\Http\Controllers\Settings;
-
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Settings\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
-
-class ProfileController extends Controller
+public function update(ProfileUpdateRequest $request): RedirectResponse
 {
-    /**
-     * Show the user's profile settings page.
-     */
-    public function edit(Request $request): Response
-    {
-        return Inertia::render('settings/profile', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => $request->session()->get('status'),
-        ]);
-    }
-
-    /**
-     * Update the user's profile settings.
-     */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
-    {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
-
-        $request->user()->save();
-
-        return to_route('profile.edit');
-    }
+    $request->user()->fill($request->validated());
+    $request->user()->save();
+    return to_route('profile.edit');
 }
 ```
 
-### Form Requests
+### TypeScript/React
 
-- Create dedicated Form Request classes for validation
-- Place in `app/Http/Requests/` with appropriate namespace
-- Use `authorize()` method for authorization logic
-
-### Testing with Pest
-
-```php
-<?php
-
-use App\Models\User;
-
-test('profile page is displayed', function () {
-    $user = User::factory()->create();
-
-    $response = $this
-        ->actingAs($user)
-        ->get(route('profile.edit'));
-
-    $response->assertOk();
-});
-
-test('profile information can be updated', function () {
-    $user = User::factory()->create();
-
-    $response = $this
-        ->actingAs($user)
-        ->patch(route('profile.update'), [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
-    $response
-        ->assertSessionHasNoErrors()
-        ->assertRedirect(route('profile.edit'));
-
-    $user->refresh();
-
-    expect($user->name)->toBe('Test User');
-    expect($user->email)->toBe('test@example.com');
-});
-```
-
-## Frontend (React/TypeScript) Conventions
-
-### Component Structure
-
-- Use functional components with hooks
-- Type all props and state with TypeScript interfaces
-- Use named exports for components
-- Follow component composition patterns
-
-### TypeScript Configuration
-
-- Strict mode enabled
-- Use `unknown` over `any`
-- Define interfaces for complex object types
-- Use union types for variant props
-
-### State Management
-
-- Use Redux Toolkit for global state
-- Prefer local state with `useState` for component-specific state
-- Use React Query for server state (when implemented)
-
-### Styling
-
-- Use Tailwind CSS with design tokens
-- Leverage Shadcn/ui component library
-- Use CSS variables for theming
-- Follow mobile-first responsive design
-
-### Example Component
+- Strict mode, `unknown` over `any`
+- Functional components with hooks
+- Named exports, PascalCase components
+- Type all props with interfaces
+- Use `@/` path aliases (`@/components`, `@/lib`, `@/ui`, `@/hooks`)
 
 ```tsx
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 
-interface UserFormProps {
-    onSubmit: (data: UserData) => void;
-    initialData?: Partial<UserData>;
+interface FormProps {
+    onSubmit: (data: FormData) => void;
 }
 
-interface UserData {
-    name: string;
-    email: string;
-}
-
-export function UserForm({ onSubmit, initialData }: UserFormProps) {
-    const [formData, setFormData] = useState<UserData>({
-        name: initialData?.name ?? '',
-        email: initialData?.email ?? '',
-    });
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSubmit(formData);
-    };
-
-    return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-                value={formData.name}
-                onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, name: e.target.value }))
-                }
-                placeholder="Name"
-            />
-            <Input
-                type="email"
-                value={formData.email}
-                onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, email: e.target.value }))
-                }
-                placeholder="Email"
-            />
-            <Button type="submit">Save</Button>
-        </form>
-    );
+export function UserForm({ onSubmit }: FormProps) {
+    const [value, setValue] = useState('');
+    return <Button onClick={() => onSubmit({ value })}>Submit</Button>;
 }
 ```
 
-## File Structure and Organization
+### Naming
 
-### Backend (Laravel)
+- **Files**: PascalCase (components), camelCase (utils)
+- **Classes**: PascalCase
+- **Functions/Variables**: camelCase
+- **Constants**: UPPER_SNAKE_CASE
+- **Types/Interfaces**: PascalCase
+
+### Styling
+
+- Tailwind CSS with design tokens
+- Shadcn/ui components (Radix primitives)
+- CSS variables for theming
+- Mobile-first responsive
+- Use `cn()` for conditional classes
+
+### State Management
+
+- Redux Toolkit for global state
+- `useState` for component-local state
+- Redux Persist for persistence
+
+## File Structure
 
 ```
 app/
-├── Http/
-│   ├── Controllers/     # Request handlers
-│   ├── Requests/        # Form validation classes
-│   └── Middleware/      # HTTP middleware
+├── Http/Controllers/    # Request handlers
+├── Http/Requests/       # Form validation
 ├── Models/              # Eloquent models
-├── Services/            # Business logic services
-└── Events/              # Event classes
-
-tests/
-├── Feature/             # Integration tests
-├── Unit/                # Unit tests
-└── Pest.php            # Test configuration
+├── Services/            # Business logic
+resources/js/
+├── components/          # Reusable UI
+├── hooks/               # Custom hooks
+├── lib/                 # Utilities
+├── pages/               # Page components
+└── types/               # TypeScript types
 ```
 
-### Frontend (React/TypeScript)
+## Error Handling
 
-```
-resources/
-├── js/
-│   ├── components/       # Reusable UI components
-│   ├── hooks/           # Custom React hooks
-│   ├── lib/             # Utilities and helpers
-│   ├── pages/           # Page components
-│   └── types/           # TypeScript type definitions
-└── css/
-    └── app.css          # Global styles and Tailwind
-```
+- Validate early with Form Requests
+- Try-catch for expected errors
+- Throw specific exception types
+- Return proper HTTP status codes
 
-### Configuration Files
+## Security
 
-- `.editorconfig` - Editor-independent formatting
-- `eslint.config.js` - JavaScript/TypeScript linting
-- `.prettierrc` - Code formatting
-- `tsconfig.json` - TypeScript compiler options
-- `phpstan.neon` - PHP static analysis
-- `components.json` - Shadcn/ui configuration
+- CSRF protection (built-in)
+- Validate all input via Form Requests
+- Store secrets in `.env` only
+- Sanctum for API auth
+- Principle of least privilege
 
-## Quality Assurance
+## Pre-commit Checklist
 
-### Pre-commit Quality Checks
+- [ ] `./vendor/bin/pint` passes
+- [ ] `./vendor/bin/phpstan` passes
+- [ ] `./vendor/bin/pest` passes
+- [ ] `npm run lint` passes
+- [ ] `npm run types` passes
+- [ ] Migrations included for schema changes
 
-Run these commands before committing:
-
-```bash
-# PHP quality checks
-./vendor/bin/pint          # Code formatting
-./vendor/bin/phpstan       # Static analysis
-./vendor/bin/pest          # Run tests
-
-# Frontend quality checks
-npm run lint               # ESLint
-npm run types              # TypeScript checking
-npm run format:check       # Prettier check
-```
-
-### CI/CD Quality Gates
-
-- **GitHub Actions**: Runs on pushes to `develop`/`main` and PRs
-- **PHPStan**: Static analysis at level 5 (configured in phpstan.neon)
-- **Pest**: Full test suite
-- **ESLint + Prettier**: Frontend code quality
-- **TypeScript**: Type checking
-
-### Code Review Checklist
-
-- [ ] Tests pass locally
-- [ ] Code style checks pass (`pint`, `eslint`, `prettier`)
-- [ ] TypeScript types are correct
-- [ ] No PHPStan errors
-- [ ] Database migrations included if schema changes
-- [ ] Documentation updated for API changes
-- [ ] Security considerations reviewed
-
-### Security Best Practices
-
-- Use Laravel's built-in CSRF protection
-- Validate all user input through Form Requests
-- Use parameterized queries (Eloquent ORM handles this)
-- Store sensitive data in `.env` files
-- Use Laravel Sanctum for API authentication
-- Follow principle of least privilege for database queries
-
----
-
-_This document should be updated when development practices or tooling change. Last updated: January 2026_</content>
-<parameter name="filePath">/home/mateus/trackei/AGENTS.md
+_Last updated: January 2026_
