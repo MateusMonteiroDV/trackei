@@ -15,6 +15,10 @@ Route::get('/', function () {
     return Inertia::render('welcome', []);
 })->name('home');
 
+Route::get('/track', function () {
+    return Inertia::render('track');
+})->name('track');
+
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/create-business', function () {

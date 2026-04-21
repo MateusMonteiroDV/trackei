@@ -34,6 +34,11 @@ class Driver extends Model
         return $this->hasMany(DriverLocation::class);
     }
 
+    public function latestLocation(): HasOne
+    {
+        return $this->hasOne(DriverLocation::class)->latestOfMany();
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

@@ -55,6 +55,14 @@ export interface Business {
     updated_at: string;
 }
 
+export interface DriverLocation {
+    id: number;
+    driver_id: number;
+    lat: number;
+    lng: number;
+    created_at: string;
+}
+
 export interface Driver {
     id: number;
     user_id: number;
@@ -64,6 +72,7 @@ export interface Driver {
     vehicle: string;
     status: 'available' | 'on_delivery';
     user?: User;
+    latest_location?: DriverLocation;
     created_at: string;
     updated_at: string;
 }

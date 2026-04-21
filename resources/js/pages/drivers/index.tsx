@@ -18,9 +18,11 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Plus, Search, Eye } from 'lucide-react';
+import { Plus, Search, Eye, Map as MapIcon, List } from 'lucide-react';
 import { useState } from 'react';
 import StatusBadge from '@/components/status-badge';
+import Map from '@/components/map';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface IndexProps {
     drivers: PaginatedResponse<Driver>;
@@ -40,6 +42,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function Index({ drivers, filters }: IndexProps) {
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status || 'all');
+    const [view, setView] = useState<'list' | 'map'>('list');
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -50,6 +53,11 @@ export default function Index({ drivers, filters }: IndexProps) {
         setStatus(value);
         router.get('/drivers', { search, status: value === 'all' ? '' : value }, { preserveState: true });
     };
+
+    const driversWithLocation = drivers.data.filter(d => d.latest_location);
+    const mapCenter: [number, number] = driversWithLocation.length > 0 
+        ? [driversWithLocation[0].latest_location!.lat, driversWithLocation[0].latest_location!.lng]
+        : [-23.5505, -46.6333]; // Default to São Paulo if no locations
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -63,12 +71,34 @@ export default function Index({ drivers, filters }: IndexProps) {
                             Manage your fleet and monitor driver availability.
                         </p>
                     </div>
-                    <Button asChild>
-                        <Link href="/drivers/create">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Add Driver
-                        </Link>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center border rounded-md overflow-hidden mr-2">
+                            <Button 
+                                variant={view === 'list' ? 'secondary' : 'ghost'} 
+                                size="sm" 
+                                className="rounded-none px-3"
+                                onClick={() => setView('list')}
+                            >
+                                <List className="h-4 w-4 mr-2" />
+                                List
+                            </Button>
+                            <Button 
+                                variant={view === 'map' ? 'secondary' : 'ghost'} 
+                                size="sm" 
+                                className="rounded-none px-3"
+                                onClick={() => setView('map')}
+                            >
+                                <MapIcon className="h-4 w-4 mr-2" />
+                                Map
+                            </Button>
+                        </div>
+                        <Button asChild>
+                            <Link href="/drivers/create">
+                                <Plus className="mr-2 h-4 w-4" />
+                                Add Driver
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="flex flex-col gap-4 md:flex-row md:items-center">
@@ -94,80 +124,98 @@ export default function Index({ drivers, filters }: IndexProps) {
                     </Select>
                 </div>
 
-                <div className="rounded-md border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>CPF</TableHead>
-                                <TableHead>Vehicle</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {drivers.data.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center">
-                                        No drivers found.
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                drivers.data.map((driver) => (
-                                    <TableRow key={driver.id}>
-                                        <TableCell className="font-medium text-black">
-                                            {driver.name}
-                                        </TableCell>
-                                        <TableCell>{driver.cpf}</TableCell>
-                                        <TableCell>{driver.vehicle}</TableCell>
-                                        <TableCell>
-                                            <StatusBadge status={driver.status} />
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <Button variant="ghost" size="icon" asChild>
-                                                <Link href={`/drivers/${driver.id}`}>
-                                                    <Eye className="h-4 w-4" />
-                                                    <span className="sr-only">View</span>
-                                                </Link>
-                                            </Button>
-                                        </TableCell>
+                {view === 'list' ? (
+                    <>
+                        <div className="rounded-md border">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Name</TableHead>
+                                        <TableHead>CPF</TableHead>
+                                        <TableHead>Vehicle</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
-
-                {drivers.last_page > 1 && (
-                    <div className="flex items-center justify-end space-x-2 py-4">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={!drivers.prev_page_url}
-                            asChild={!!drivers.prev_page_url}
-                        >
-                            {drivers.prev_page_url ? (
-                                <Link href={drivers.prev_page_url}>Previous</Link>
-                            ) : (
-                                <span>Previous</span>
-                            )}
-                        </Button>
-                        <div className="text-sm text-gray-500">
-                            Page {drivers.current_page} of {drivers.last_page}
+                                </TableHeader>
+                                <TableBody>
+                                    {drivers.data.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="h-24 text-center">
+                                                No drivers found.
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        drivers.data.map((driver) => (
+                                            <TableRow key={driver.id}>
+                                                <TableCell className="font-medium text-black">
+                                                    {driver.name}
+                                                </TableCell>
+                                                <TableCell>{driver.cpf}</TableCell>
+                                                <TableCell>{driver.vehicle}</TableCell>
+                                                <TableCell>
+                                                    <StatusBadge status={driver.status} />
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button variant="ghost" size="icon" asChild>
+                                                        <Link href={`/drivers/${driver.id}`}>
+                                                            <Eye className="h-4 w-4" />
+                                                            <span className="sr-only">View</span>
+                                                        </Link>
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
                         </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={!drivers.next_page_url}
-                            asChild={!!drivers.next_page_url}
-                        >
-                            {drivers.next_page_url ? (
-                                <Link href={drivers.next_page_url}>Next</Link>
-                            ) : (
-                                <span>Next</span>
-                            )}
-                        </Button>
-                    </div>
+
+                        {drivers.last_page > 1 && (
+                            <div className="flex items-center justify-end space-x-2 py-4">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={!drivers.prev_page_url}
+                                    asChild={!!drivers.prev_page_url}
+                                >
+                                    {drivers.prev_page_url ? (
+                                        <Link href={drivers.prev_page_url}>Previous</Link>
+                                    ) : (
+                                        <span>Previous</span>
+                                    )}
+                                </Button>
+                                <div className="text-sm text-gray-500">
+                                    Page {drivers.current_page} of {drivers.last_page}
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={!drivers.next_page_url}
+                                    asChild={!!drivers.next_page_url}
+                                >
+                                    {drivers.next_page_url ? (
+                                        <Link href={drivers.next_page_url}>Next</Link>
+                                    ) : (
+                                        <span>Next</span>
+                                    )}
+                                </Button>
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <Card className="overflow-hidden">
+                        <CardContent className="p-0 h-[600px]">
+                            <Map 
+                                center={mapCenter} 
+                                zoom={12}
+                                markers={driversWithLocation.map(d => ({
+                                    id: d.id,
+                                    position: [d.latest_location!.lat, d.latest_location!.lng],
+                                    label: `${d.name} (${d.status})`
+                                }))}
+                            />
+                        </CardContent>
+                    </Card>
                 )}
             </div>
         </AppLayout>

@@ -1,19 +1,35 @@
-import InputError from '@/components/input-error';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
-import ProtectRoute from '@/layouts/auth/auth-simple-layout';
-import api from '@/lib/axios';
-import { Head } from '@inertiajs/react';
-import { useState } from 'react';
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import api from '@/lib/axios'
+import { Head, router } from '@inertiajs/react'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useDispatch } from 'react-redux'
 
-interface BusinessFormData {
-    name: string;
-    cnpj: string;
-    address: string;
-    phone: string;
-}
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Spinner } from '@/components/ui/spinner'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import ProtectRoute from '@/layouts/auth/auth-simple-layout'
+import { setToken } from '@/store/slices/authSlice'
+import { dashboard } from '@/routes'
+
+const businessSchema = z.object({
+  name: z.string().min(3, { message: "Business name must be at least 3 characters" }),
+  cnpj: z.string().min(14, { message: "Invalid CNPJ" }),
+  address: z.string().optional(),
+  phone: z.string().optional(),
+})
+
+type BusinessValues = z.infer<typeof businessSchema>
 
 interface CreateBusinessResponse {
     message: string;
@@ -29,56 +45,51 @@ interface CreateBusinessResponse {
         email: string;
         password: string;
     };
+    token?: string;
 }
 
-function CreateBusiness() {
-    const [processing, setProcessing] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const [success, setSuccess] = useState<CreateBusinessResponse | null>(null);
-    const [formData, setFormData] = useState<BusinessFormData>({
-        name: '',
-        cnpj: '',
-        address: '',
-        phone: '',
-    });
+export default function CreateBusiness() {
+    const [processing, setProcessing] = useState(false)
+    const [success, setSuccess] = useState<CreateBusinessResponse | null>(null)
+    const dispatch = useDispatch()
+    const { t } = useTranslation()
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-        if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
-    };
+    const form = useForm<BusinessValues>({
+        resolver: zodResolver(businessSchema),
+        defaultValues: {
+            name: "",
+            cnpj: "",
+            address: "",
+            phone: "",
+        },
+    })
 
-    const submit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setProcessing(true);
-        setErrors({});
-        setSuccess(null);
+    const onSubmit = async (values: BusinessValues) => {
+        setProcessing(true)
         try {
-            const response = await api.post('/api/create-business', formData);
+            const response = await api.post('/api/create-business', values)
             if (response.status === 201) {
-                setSuccess(response.data);
-                setFormData({ name: '', cnpj: '', address: '', phone: '' });
+                if (response.data.token) {
+                    dispatch(setToken(response.data.token))
+                    router.visit(dashboard().url)
+                } else {
+                    setSuccess(response.data)
+                }
             }
-        } catch (error: unknown) {
-            const axiosError = error as {
-                response?: {
-                    status: number;
-                    data?: { errors?: Record<string, string>; error?: string };
-                };
-            };
-            if (axiosError.response?.status === 422) {
-                setErrors(axiosError.response.data?.errors || {});
-            } else {
-                setErrors({
-                    general:
-                        axiosError.response?.data?.error ||
-                        'Error creating business',
-                });
+        } catch (error: any) {
+            if (error.response?.status === 422) {
+                const apiErrors = error.response.data.errors
+                Object.keys(apiErrors).forEach((key) => {
+                    form.setError(key as any, {
+                        type: "manual",
+                        message: apiErrors[key][0],
+                    })
+                })
             }
         } finally {
-            setProcessing(false);
+            setProcessing(false)
         }
-    };
+    }
 
     return (
         <>
@@ -149,76 +160,92 @@ function CreateBusiness() {
                             </div>
                         </div>
                     ) : (
-                        <form onSubmit={submit} className="space-y-5">
-                            {errors.general && (
-                                <div className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                                    {errors.general}
-                                </div>
-                            )}
-
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Business Name *</Label>
-                                <Input
-                                    id="name"
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                                <FormField
+                                    control={form.control}
                                     name="name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    autoFocus
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Business Name *</FormLabel>
+                                            <FormControl>
+                                                <Input 
+                                                    placeholder="Example Logistics" 
+                                                    {...field} 
+                                                    autoFocus
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                                <InputError message={errors.name} />
-                            </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="cnpj">CNPJ *</Label>
-                                <Input
-                                    id="cnpj"
+                                <FormField
+                                    control={form.control}
                                     name="cnpj"
-                                    value={formData.cnpj}
-                                    onChange={handleInputChange}
-                                    className="font-mono"
-                                    placeholder="00.000.000/0000-00"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>CNPJ *</FormLabel>
+                                            <FormControl>
+                                                <Input 
+                                                    placeholder="00.000.000/0000-00" 
+                                                    {...field} 
+                                                    className="font-mono"
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                                <InputError message={errors.cnpj} />
-                            </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="address">Address</Label>
-                                <Input
-                                    id="address"
+                                <FormField
+                                    control={form.control}
                                     name="address"
-                                    value={formData.address}
-                                    onChange={handleInputChange}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Address</FormLabel>
+                                            <FormControl>
+                                                <Input 
+                                                    placeholder="Full address" 
+                                                    {...field} 
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                                <InputError message={errors.address} />
-                            </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="phone">Phone</Label>
-                                <Input
-                                    id="phone"
+                                <FormField
+                                    control={form.control}
                                     name="phone"
-                                    value={formData.phone}
-                                    onChange={handleInputChange}
-                                    placeholder="(00) 00000-0000"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Phone</FormLabel>
+                                            <FormControl>
+                                                <Input 
+                                                    placeholder="(00) 00000-0000" 
+                                                    {...field} 
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                                <InputError message={errors.phone} />
-                            </div>
 
-                            <Button
-                                type="submit"
-                                disabled={processing}
-                                variant="blue"
-                                className="flex w-full items-center justify-center gap-2"
-                            >
-                                {processing && <Spinner className="h-4 w-4" />}
-                                Create Business
-                            </Button>
-                        </form>
+                                <Button
+                                    type="submit"
+                                    disabled={processing}
+                                    variant="blue"
+                                    className="flex w-full items-center justify-center gap-2"
+                                >
+                                    {processing && <Spinner className="h-4 w-4" />}
+                                    Create Business
+                                </Button>
+                            </form>
+                        </Form>
                     )}
                 </div>
             </ProtectRoute>
         </>
-    );
+    )
 }
-
-export default CreateBusiness;

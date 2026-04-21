@@ -6,6 +6,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
+import { Toaster } from 'sonner';
 import { initializeTheme } from './hooks/use-appearance';
 import './lib/i18n';
 import { persistor, store } from './store';
@@ -37,6 +38,7 @@ createInertiaApp({
                     ) : (
                         <App {...props} />
                     )}
+                    <Toaster position="top-right" />
                 </PersistGate>
             </Provider>,
         );

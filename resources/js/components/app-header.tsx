@@ -38,11 +38,9 @@ import AppLogoIcon from './app-logo-icon';
 import NotificationBell from './notification-bell';
 
 const mainNavItems: NavItem[] = [
-
-const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard(),
+        href: dashboard().url,
         icon: LayoutGrid,
     },
 ];

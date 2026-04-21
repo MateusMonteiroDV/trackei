@@ -1,22 +1,38 @@
-import api from '@/lib/axios';
-import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import api from '@/lib/axios'
+import { Head, router } from '@inertiajs/react'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useDispatch } from 'react-redux'
 
-import InputError from '@/components/input-error';
-import TextLink from '@/components/text-link';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
-import AuthCardLayout from '@/layouts/auth/auth-card-layout';
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { Spinner } from '@/components/ui/spinner'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import AuthCardLayout from '@/layouts/auth/auth-card-layout'
+import TextLink from '@/components/text-link'
 
-import { register } from '@/routes';
-import { request } from '@/routes/password';
-import { useDispatch } from 'react-redux';
+import { register } from '@/routes'
+import { request } from '@/routes/password'
+import { setToken } from '@/store/slices/authSlice'
 
-import { setToken } from '@/store/slices/authSlice';
+const loginSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  remember: z.boolean().default(false),
+})
+
+type LoginValues = z.infer<typeof loginSchema>
 
 interface LoginProps {
     status?: string;
@@ -29,35 +45,46 @@ export default function Login({
     canResetPassword,
     canRegister,
 }: LoginProps) {
-    const [processing, setProcessing] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const dispatch = useDispatch();
-    const { t } = useTranslation();
+    const [processing, setProcessing] = useState(false)
+    const dispatch = useDispatch()
+    const { t } = useTranslation()
 
-    const submit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setProcessing(true);
-        setErrors({});
-        const form = new FormData(e.currentTarget);
+    const form = useForm<LoginValues>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            email: "",
+            password: "",
+            remember: false,
+        },
+    })
 
+    const onSubmit = async (values: LoginValues) => {
+        setProcessing(true)
         try {
-            const res = await api.post('/api/login', {
-                email: form.get('email'),
-                password: form.get('password'),
-                remember: !!form.get('remember'),
-            });
-            if (res.status == 200) {
-                dispatch(setToken(res.data.token));
-                router.visit('/dashboard');
+            const res = await api.post('/api/login', values)
+            if (res.status === 200) {
+                dispatch(setToken(res.data.token))
+                const user = res.data.user
+                if (!user.business_id && user.role === 'user') {
+                    router.visit('/create-business')
+                } else {
+                    router.visit('/dashboard')
+                }
             }
         } catch (error: any) {
             if (error.response?.status === 422) {
-                setErrors(error.response.data.errors);
+                const apiErrors = error.response.data.errors
+                Object.keys(apiErrors).forEach((key) => {
+                    form.setError(key as any, {
+                        type: "manual",
+                        message: apiErrors[key][0],
+                    })
+                })
             }
         } finally {
-            setProcessing(false);
+            setProcessing(false)
         }
-    };
+    }
 
     return (
         <>
@@ -76,67 +103,84 @@ export default function Login({
                         : undefined
                 }
             >
-                <form onSubmit={submit} className="space-y-4 sm:space-y-5">
-                    {/* Email */}
-                    <div className="space-y-1.5">
-                        <Label htmlFor="email">
-                            {t('auth.login.emailLabel')}
-                        </Label>
-                        <Input
-                            id="email"
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
+                        <FormField
+                            control={form.control}
                             name="email"
-                            type="email"
-                            required
-                            autoComplete="email"
-                            placeholder={t('auth.login.emailPlaceholder')}
-                        />
-                        <InputError message={errors.email} />
-                    </div>
-
-                    {/* Password */}
-                    <div className="space-y-1.5">
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="password">
-                                {t('auth.login.passwordLabel')}
-                            </Label>
-                            {canResetPassword && (
-                                <TextLink
-                                    href={request().toString()}
-                                    className="text-sm"
-                                >
-                                    {t('common.forgotPassword')}
-                                </TextLink>
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('auth.login.emailLabel')}</FormLabel>
+                                    <FormControl>
+                                        <Input 
+                                            placeholder={t('auth.login.emailPlaceholder')} 
+                                            {...field} 
+                                            autoComplete="email"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
                             )}
-                        </div>
-                        <Input
-                            id="password"
-                            name="password"
-                            type="password"
-                            required
-                            autoComplete="current-password"
-                            placeholder={t('auth.login.passwordPlaceholder')}
                         />
-                        <InputError message={errors.password} />
-                    </div>
 
-                    <div className="flex items-center space-x-2 pt-1">
-                        <Checkbox id="remember" name="remember" />
-                        <Label htmlFor="remember" className="text-sm">
-                            {t('common.rememberMe')}
-                        </Label>
-                    </div>
+                        <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <div className="flex items-center justify-between">
+                                        <FormLabel>{t('auth.login.passwordLabel')}</FormLabel>
+                                        {canResetPassword && (
+                                            <TextLink
+                                                href={request().toString()}
+                                                className="text-sm"
+                                            >
+                                                {t('common.forgotPassword')}
+                                            </TextLink>
+                                        )}
+                                    </div>
+                                    <FormControl>
+                                        <Input 
+                                            type="password"
+                                            placeholder={t('auth.login.passwordPlaceholder')} 
+                                            {...field} 
+                                            autoComplete="current-password"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                    {/* Submit */}
-                    <Button
-                        type="submit"
-                        disabled={processing}
-                        variant="blue"
-                        className="flex w-full items-center justify-center gap-2"
-                    >
-                        {processing && <Spinner className="h-4 w-4" />}
-                        {t('auth.login.loginButton')}
-                    </Button>
-                </form>
+                        <FormField
+                            control={form.control}
+                            name="remember"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-x-2 space-y-0 pt-1">
+                                    <FormControl>
+                                        <Checkbox 
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                    <FormLabel className="text-sm font-normal">
+                                        {t('common.rememberMe')}
+                                    </FormLabel>
+                                </FormItem>
+                            )}
+                        />
+
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            variant="blue"
+                            className="flex w-full items-center justify-center gap-2"
+                        >
+                            {processing && <Spinner className="h-4 w-4" />}
+                            {t('auth.login.loginButton')}
+                        </Button>
+                    </form>
+                </Form>
 
                 {status && (
                     <p className="mt-3 text-center text-sm font-medium text-green-600 sm:mt-4">
@@ -145,5 +189,5 @@ export default function Login({
                 )}
             </AuthCardLayout>
         </>
-    );
+    )
 }

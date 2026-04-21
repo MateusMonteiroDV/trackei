@@ -1,39 +1,84 @@
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, useForm, Link } from '@inertiajs/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ChevronLeft, Save } from 'lucide-react';
-import InputError from '@/components/input-error';
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import api from '@/lib/axios'
+import { Head, router, Link } from '@inertiajs/react'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Drivers',
-        href: '/drivers',
-    },
-    {
-        title: 'Add Driver',
-        href: '/drivers/create',
-    },
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Spinner } from '@/components/ui/spinner'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import AppLayout from '@/layouts/app-layout'
+import { ChevronLeft, Save } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
+const driverSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  username: z.string().min(3, { message: "Username must be at least 3 characters" }),
+  email: z.string().email({ message: "Invalid email address" }),
+  cpf: z.string().min(11, { message: "Invalid CPF" }),
+  vehicle: z.string().min(2, { message: "Vehicle information is required" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  password_confirmation: z.string()
+}).refine((data) => data.password === data.password_confirmation, {
+  message: "Passwords don't match",
+  path: ["password_confirmation"],
+})
+
+type DriverValues = z.infer<typeof driverSchema>
+
+const breadcrumbs = [
+    { title: 'Drivers', href: '/drivers' },
+    { title: 'Add Driver', href: '/drivers/create' },
 ];
 
 export default function Create() {
-    const { data, setData, post, processing, errors } = useForm({
-        name: '',
-        username: '',
-        email: '',
-        cpf: '',
-        vehicle: '',
-        password: '',
-        password_confirmation: '',
-    });
+    const [processing, setProcessing] = useState(false)
+    const { t } = useTranslation()
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        post('/api/create-driver'); // Using the API endpoint for creation
-    };
+    const form = useForm<DriverValues>({
+        resolver: zodResolver(driverSchema),
+        defaultValues: {
+            name: "",
+            username: "",
+            email: "",
+            cpf: "",
+            vehicle: "",
+            password: "",
+            password_confirmation: "",
+        },
+    })
+
+    const onSubmit = async (values: DriverValues) => {
+        setProcessing(true)
+        try {
+            const res = await api.post('/api/create-driver', values)
+            if (res.status === 201 || res.status === 200) {
+                router.visit('/drivers')
+            }
+        } catch (error: any) {
+            if (error.response?.status === 422) {
+                const apiErrors = error.response.data.errors
+                Object.keys(apiErrors).forEach((key) => {
+                    form.setError(key as any, {
+                        type: "manual",
+                        message: apiErrors[key][0],
+                    })
+                })
+            }
+        } finally {
+            setProcessing(false)
+        }
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -61,105 +106,125 @@ export default function Create() {
                             <CardTitle className="text-black">Driver Details</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div className="grid gap-4 md:grid-cols-2">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="name">Full Name</Label>
-                                        <Input
-                                            id="name"
-                                            value={data.name}
-                                            onChange={(e) => setData('name', e.target.value)}
-                                            required
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                    <div className="grid gap-4 md:grid-cols-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="name"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Full Name</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="John Doe" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
                                         />
-                                        <InputError message={errors.name} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="cpf">CPF</Label>
-                                        <Input
-                                            id="cpf"
-                                            value={data.cpf}
-                                            onChange={(e) => setData('cpf', e.target.value)}
-                                            placeholder="000.000.000-00"
-                                            required
+                                        <FormField
+                                            control={form.control}
+                                            name="cpf"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>CPF</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="000.000.000-00" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
                                         />
-                                        <InputError message={errors.cpf} />
                                     </div>
-                                </div>
 
-                                <div className="grid gap-4 md:grid-cols-2">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="username">Username</Label>
-                                        <Input
-                                            id="username"
-                                            value={data.username}
-                                            onChange={(e) => setData('username', e.target.value)}
-                                            required
+                                    <div className="grid gap-4 md:grid-cols-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="username"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Username</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="johndoe" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
                                         />
-                                        <InputError message={errors.username} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="email">Email</Label>
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            value={data.email}
-                                            onChange={(e) => setData('email', e.target.value)}
-                                            required
+                                        <FormField
+                                            control={form.control}
+                                            name="email"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Email</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="email" placeholder="john@example.com" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
                                         />
-                                        <InputError message={errors.email} />
                                     </div>
-                                </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="vehicle">Vehicle Information</Label>
-                                    <Input
-                                        id="vehicle"
-                                        value={data.vehicle}
-                                        onChange={(e) => setData('vehicle', e.target.value)}
-                                        placeholder="e.g. Mercedes Sprinter (White) - ABC-1234"
-                                        required
+                                    <FormField
+                                        control={form.control}
+                                        name="vehicle"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Vehicle Information</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="e.g. Mercedes Sprinter (White) - ABC-1234" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                    <InputError message={errors.vehicle} />
-                                </div>
 
-                                <div className="grid gap-4 md:grid-cols-2">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="password">Password</Label>
-                                        <Input
-                                            id="password"
-                                            type="password"
-                                            value={data.password}
-                                            onChange={(e) => setData('password', e.target.value)}
-                                            required
+                                    <div className="grid gap-4 md:grid-cols-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="password"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Password</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="password" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
                                         />
-                                        <InputError message={errors.password} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="password_confirmation">Confirm Password</Label>
-                                        <Input
-                                            id="password_confirmation"
-                                            type="password"
-                                            value={data.password_confirmation}
-                                            onChange={(e) => setData('password_confirmation', e.target.value)}
-                                            required
+                                        <FormField
+                                            control={form.control}
+                                            name="password_confirmation"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Confirm Password</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="password" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
                                         />
                                     </div>
-                                </div>
 
-                                <div className="flex justify-end gap-4">
-                                    <Button variant="outline" asChild disabled={processing}>
-                                        <Link href="/drivers">Cancel</Link>
-                                    </Button>
-                                    <Button type="submit" disabled={processing}>
-                                        <Save className="mr-2 h-4 w-4" />
-                                        Save Driver
-                                    </Button>
-                                </div>
-                            </form>
+                                    <div className="flex justify-end gap-4">
+                                        <Button variant="outline" asChild disabled={processing}>
+                                            <Link href="/drivers">Cancel</Link>
+                                        </Button>
+                                        <Button type="submit" disabled={processing}>
+                                            {processing && <Spinner className="mr-2 h-4 w-4" />}
+                                            <Save className="mr-2 h-4 w-4" />
+                                            Save Driver
+                                        </Button>
+                                    </div>
+                                </form>
+                            </Form>
                         </CardContent>
                     </Card>
                 </div>
             </div>
         </AppLayout>
-    );
+    )
 }

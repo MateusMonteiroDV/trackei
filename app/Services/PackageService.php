@@ -29,7 +29,7 @@ class PackageService
 
     public function findByTrackingCode(string $trackingCode): ?Package
     {
-        return Package::with(['driver.user:id,name', 'business:id,name', 'client:id,name,email'])
+        return Package::with(['driver.user:id,name', 'driver.latestLocation', 'business:id,name', 'client:id,name,email'])
             ->where('tracking_code', $trackingCode)
             ->first();
     }

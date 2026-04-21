@@ -41,11 +41,21 @@ class BusinessController extends Controller
                 'business_id' => $business->id,
             ]);
 
+            $token = $admin->createToken('api-token')->plainTextToken;
+
             DB::commit();
 
             return response()->json([
                 'instruction' => 'Use this initial admin user to create your own admin user',
                 'message' => 'Business created successfully',
+                'token' => $token,
+                'user' => [
+                    'id' => $admin->id,
+                    'name' => $admin->name,
+                    'email' => $admin->email,
+                    'role' => $admin->role,
+                    'business_id' => $admin->business_id,
+                ],
                 'business' => $business,
                 'admin_credentials' => [
                     'email' => $admin->email,

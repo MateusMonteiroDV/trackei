@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, MapPin, Phone, User, Building, Truck } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import StatusBadge from '@/components/status-badge';
+import Map from '@/components/map';
 
 interface ShowProps {
     package: Package;
@@ -23,6 +24,8 @@ export default function Show({ package: pkg }: ShowProps) {
             href: `/packages/${pkg.tracking_code}`,
         },
     ];
+
+    const driverLocation = pkg.driver?.latest_location;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -57,6 +60,29 @@ export default function Show({ package: pkg }: ShowProps) {
                                 <TrackingTimeline package={pkg} />
                             </CardContent>
                         </Card>
+
+                        {driverLocation && (
+                            <Card className="overflow-hidden">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <MapPin className="h-5 w-5" />
+                                        Current Location
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-0 h-[400px]">
+                                    <Map 
+                                        center={[driverLocation.lat, driverLocation.lng]} 
+                                        markers={[
+                                            {
+                                                id: pkg.id,
+                                                position: [driverLocation.lat, driverLocation.lng],
+                                                label: `Package ${pkg.tracking_code}`
+                                            }
+                                        ]}
+                                    />
+                                </CardContent>
+                            </Card>
+                        )}
 
                         <Card>
                             <CardHeader>
@@ -122,13 +148,6 @@ export default function Show({ package: pkg }: ShowProps) {
                                             <Truck className="h-3 w-3" />
                                             {pkg.driver.vehicle}
                                         </div>
-                                        {pkg.status === 'in_transit' && (
-                                            <Button className="w-full mt-4" variant="outline" asChild>
-                                                <Link href={`/drivers/${pkg.driver.id}`}>
-                                                    View Driver on Map
-                                                </Link>
-                                            </Button>
-                                        )}
                                     </>
                                 ) : (
                                     <p className="text-sm text-muted-foreground italic">

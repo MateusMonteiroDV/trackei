@@ -1,50 +1,77 @@
-import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import api from '@/lib/axios'
+import { Head, router } from '@inertiajs/react'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useDispatch } from 'react-redux'
 
-import InputError from '@/components/input-error';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Spinner } from '@/components/ui/spinner'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import AuthCardLayout from '@/layouts/auth/auth-card-layout'
 
-import { login } from '@/routes';
-import { useDispatch } from 'react-redux';
+import { login } from '@/routes'
+import { setToken } from '@/store/slices/authSlice'
 
-import api from '@/lib/axios';
-import { setToken } from '@/store/slices/authSlice';
+const registerSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  password_confirmation: z.string()
+}).refine((data) => data.password === data.password_confirmation, {
+  message: "Passwords don't match",
+  path: ["password_confirmation"],
+})
+
+type RegisterValues = z.infer<typeof registerSchema>
 
 export default function Register() {
-    const [processing, setProcessing] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const dispatch = useDispatch();
-    const { t } = useTranslation();
+    const [processing, setProcessing] = useState(false)
+    const dispatch = useDispatch()
+    const { t } = useTranslation()
 
-    const submit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setProcessing(true);
-        setErrors({});
-        const form = new FormData(e.currentTarget);
+    const form = useForm<RegisterValues>({
+        resolver: zodResolver(registerSchema),
+        defaultValues: {
+            name: "",
+            email: "",
+            password: "",
+            password_confirmation: "",
+        },
+    })
 
+    const onSubmit = async (values: RegisterValues) => {
+        setProcessing(true)
         try {
-            const res = await api.post('/api/register', {
-                name: form.get('name'),
-                email: form.get('email'),
-                password: form.get('password'),
-                password_confirmation: form.get('password_confirmation'),
-            });
-            if (res.status == 200) {
-                dispatch(setToken(res.data.token));
-                router.visit('/dashboard');
+            const res = await api.post('/api/register', values)
+            if (res.status === 200) {
+                dispatch(setToken(res.data.token))
+                router.visit('/dashboard')
             }
         } catch (error: any) {
             if (error.response?.status === 422) {
-                setErrors(error.response.data.errors);
+                const apiErrors = error.response.data.errors
+                Object.keys(apiErrors).forEach((key) => {
+                    form.setError(key as any, {
+                        type: "manual",
+                        message: apiErrors[key][0],
+                    })
+                })
             }
         } finally {
-            setProcessing(false);
+            setProcessing(false)
         }
-    };
+    }
 
     return (
         <>
@@ -59,85 +86,95 @@ export default function Register() {
                     label: t('auth.register.login'),
                 }}
             >
-                <form onSubmit={submit} className="space-y-4 sm:space-y-5">
-                    {/* Name */}
-                    <div className="space-y-1.5">
-                        <Label htmlFor="name">
-                            {t('auth.register.nameLabel')}
-                        </Label>
-                        <Input
-                            id="name"
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
+                        <FormField
+                            control={form.control}
                             name="name"
-                            required
-                            autoFocus
-                            autoComplete="name"
-                            placeholder={t('auth.register.namePlaceholder')}
-                        />
-                        <InputError message={errors.name} />
-                    </div>
-
-                    {/* Email */}
-                    <div className="space-y-1.5">
-                        <Label htmlFor="email">
-                            {t('auth.register.emailLabel')}
-                        </Label>
-                        <Input
-                            id="email"
-                            name="email"
-                            type="email"
-                            required
-                            autoComplete="email"
-                            placeholder={t('auth.register.emailPlaceholder')}
-                        />
-                        <InputError message={errors.email} />
-                    </div>
-
-                    {/* Password */}
-                    <div className="space-y-1.5">
-                        <Label htmlFor="password">
-                            {t('auth.register.passwordLabel')}
-                        </Label>
-                        <Input
-                            id="password"
-                            name="password"
-                            type="password"
-                            required
-                            autoComplete="new-password"
-                            placeholder={t('auth.register.passwordPlaceholder')}
-                        />
-                        <InputError message={errors.password} />
-                    </div>
-
-                    {/* Confirm Password */}
-                    <div className="space-y-1.5">
-                        <Label htmlFor="password_confirmation">
-                            {t('auth.register.confirmPasswordLabel')}
-                        </Label>
-                        <Input
-                            id="password_confirmation"
-                            name="password_confirmation"
-                            type="password"
-                            required
-                            autoComplete="new-password"
-                            placeholder={t(
-                                'auth.register.confirmPasswordPlaceholder',
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('auth.register.nameLabel')}</FormLabel>
+                                    <FormControl>
+                                        <Input 
+                                            placeholder={t('auth.register.namePlaceholder')} 
+                                            {...field} 
+                                            autoFocus
+                                            autoComplete="name"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
-                        <InputError message={errors.password_confirmation} />
-                    </div>
 
-                    {/* Submit */}
-                    <Button
-                        type="submit"
-                        disabled={processing}
-                        variant="blue"
-                        className="flex w-full items-center justify-center gap-2"
-                    >
-                        {processing && <Spinner className="h-4 w-4" />}
-                        {t('auth.register.createAccountButton')}
-                    </Button>
-                </form>
+                        <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('auth.register.emailLabel')}</FormLabel>
+                                    <FormControl>
+                                        <Input 
+                                            placeholder={t('auth.register.emailPlaceholder')} 
+                                            {...field} 
+                                            autoComplete="email"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('auth.register.passwordLabel')}</FormLabel>
+                                    <FormControl>
+                                        <Input 
+                                            type="password"
+                                            placeholder={t('auth.register.passwordPlaceholder')} 
+                                            {...field} 
+                                            autoComplete="new-password"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="password_confirmation"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('auth.register.confirmPasswordLabel')}</FormLabel>
+                                    <FormControl>
+                                        <Input 
+                                            type="password"
+                                            placeholder={t('auth.register.confirmPasswordPlaceholder')} 
+                                            {...field} 
+                                            autoComplete="new-password"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            variant="blue"
+                            className="flex w-full items-center justify-center gap-2"
+                        >
+                            {processing && <Spinner className="h-4 w-4" />}
+                            {t('auth.register.createAccountButton')}
+                        </Button>
+                    </form>
+                </Form>
             </AuthCardLayout>
         </>
-    );
+    )
 }

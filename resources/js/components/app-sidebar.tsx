@@ -11,18 +11,10 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { type NavItem, type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
+import { BookOpen, Box, Building2, Car, Folder, LayoutGrid, Plus, PlusCircle, Users } from 'lucide-react';
 import AppLogo from './app-logo';
-
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-];
 
 const footerNavItems: NavItem[] = [
     {
@@ -37,14 +29,84 @@ const footerNavItems: NavItem[] = [
     },
 ];
 
+function getNavItemsByRole(role: string | undefined): NavItem[] {
+    const baseItems: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+    ];
+
+    switch (role) {
+        case 'admin':
+            return [
+                ...baseItems,
+                {
+                    title: 'Create Package',
+                    href: '/packages/create',
+                    icon: Plus,
+                },
+                {
+                    title: 'Packages',
+                    href: '/packages',
+                    icon: Box,
+                },
+                {
+                    title: 'Drivers',
+                    href: '/drivers',
+                    icon: Car,
+                },
+                {
+                    title: 'Business',
+                    href: '/business',
+                    icon: Building2,
+                },
+                {
+                    title: 'Admins',
+                    href: '/business/admins',
+                    icon: Users,
+                },
+            ];
+        case 'driver':
+            return [
+                ...baseItems,
+                {
+                    title: 'Packages',
+                    href: '/packages',
+                    icon: Box,
+                },
+            ];
+        case 'client':
+            return [
+                ...baseItems,
+                {
+                    title: 'Create Business',
+                    href: '/create-business',
+                    icon: PlusCircle,
+                },
+                {
+                    title: 'My Packages',
+                    href: '/packages',
+                    icon: Box,
+                },
+            ];
+        default:
+            return baseItems;
+    }
+}
+
 export function AppSidebar() {
+    const { auth } = usePage<SharedData>().props;
+    const mainNavItems = getNavItemsByRole(auth.user.role);
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
+                            <Link href={dashboard().url} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
