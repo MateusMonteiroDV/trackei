@@ -1,13 +1,19 @@
+import BusinessInfo from '@/components/business-info';
+import InputError from '@/components/input-error';
+import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Business } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Save, Building } from 'lucide-react';
-import InputError from '@/components/input-error';
-import BusinessInfo from '@/components/business-info';
+import { Save } from 'lucide-react';
 
 interface ShowProps {
     business: Business;
@@ -42,7 +48,9 @@ export default function Show({ business }: ShowProps) {
 
             <div className="flex flex-col gap-6 p-4 md:p-8">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-black">Business Settings</h1>
+                    <h1 className="text-2xl font-bold tracking-tight text-black">
+                        Business Settings
+                    </h1>
                     <p className="text-sm text-muted-foreground">
                         Manage your company information and preferences.
                     </p>
@@ -52,19 +60,28 @@ export default function Show({ business }: ShowProps) {
                     <div className="md:col-span-2">
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-black">Update Information</CardTitle>
+                                <CardTitle className="text-black">
+                                    Update Information
+                                </CardTitle>
                                 <CardDescription>
                                     Update your company's public details.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <form onSubmit={handleSubmit} className="space-y-6">
+                                <form
+                                    onSubmit={handleSubmit}
+                                    className="space-y-6"
+                                >
                                     <div className="space-y-2">
-                                        <Label htmlFor="name">Business Name</Label>
+                                        <Label htmlFor="name">
+                                            Business Name
+                                        </Label>
                                         <Input
                                             id="name"
                                             value={data.name}
-                                            onChange={(e) => setData('name', e.target.value)}
+                                            onChange={(e) =>
+                                                setData('name', e.target.value)
+                                            }
                                             required
                                         />
                                         <InputError message={errors.name} />
@@ -75,23 +92,35 @@ export default function Show({ business }: ShowProps) {
                                         <Input
                                             id="address"
                                             value={data.address}
-                                            onChange={(e) => setData('address', e.target.value)}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'address',
+                                                    e.target.value,
+                                                )
+                                            }
                                         />
                                         <InputError message={errors.address} />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="phone">Phone Number</Label>
+                                        <Label htmlFor="phone">
+                                            Phone Number
+                                        </Label>
                                         <Input
                                             id="phone"
                                             value={data.phone}
-                                            onChange={(e) => setData('phone', e.target.value)}
+                                            onChange={(e) =>
+                                                setData('phone', e.target.value)
+                                            }
                                         />
                                         <InputError message={errors.phone} />
                                     </div>
 
                                     <div className="flex justify-end">
-                                        <Button type="submit" disabled={processing}>
+                                        <Button
+                                            type="submit"
+                                            disabled={processing}
+                                        >
                                             <Save className="mr-2 h-4 w-4" />
                                             Save Changes
                                         </Button>

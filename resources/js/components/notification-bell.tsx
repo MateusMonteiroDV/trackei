@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import api from '@/lib/axios';
+import { Bell } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import NotificationList from './notification-list';
 
 export default function NotificationBell() {
@@ -20,7 +24,20 @@ export default function NotificationBell() {
     };
 
     useEffect(() => {
-        fetchNotifications();
+        const runFetchNotifications = async () => {
+            try {
+                const res = await api.get('/api/notifications');
+                setNotifications(res.data.data);
+                setUnreadCount(
+                    res.data.data.filter(
+                        (n: { read_at: string | null }) => !n.read_at,
+                    ).length,
+                );
+            } catch (error) {
+                console.error('Failed to fetch notifications', error);
+            }
+        };
+        runFetchNotifications();
     }, []);
 
     return (
@@ -34,9 +51,14 @@ export default function NotificationBell() {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-80 p-0">
-                <div className="p-4 border-b font-medium text-black">Notifications</div>
+                <div className="border-b p-4 font-medium text-black">
+                    Notifications
+                </div>
                 <div className="max-h-60 overflow-y-auto">
-                    <NotificationList notifications={notifications} onUpdate={fetchNotifications} />
+                    <NotificationList
+                        notifications={notifications}
+                        onUpdate={fetchNotifications}
+                    />
                 </div>
             </DropdownMenuContent>
         </DropdownMenu>

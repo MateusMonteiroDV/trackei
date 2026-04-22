@@ -7,15 +7,18 @@ use App\Http\Controllers\Controller;
 use App\Models\Business;
 use App\Models\Driver;
 use App\Models\Package;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response; // Importando o Facade Response
 
-class clientController extends Controller
+class ClientController extends Controller
 {
-    public function simulatePurchase(Request $req)
+    public function simulatePurchase(Request $req): JsonResponse
     {
         try {
             if ($req->user()->role != 'client') {
-                return response()->json([
+                // Usando Response::json em vez de response()->json
+                return Response::json([
                     'message' => 'You are not client',
                 ], 400);
             }
@@ -43,14 +46,15 @@ class clientController extends Controller
 
             broadcast(new NewPackageAvailable($package));
 
-            return response()->json([
+            // Usando Response::json em vez de response()->json
+            return Response::json([
                 'message' => 'Package created and broadcasted to available drivers of this business',
                 'package' => $package,
                 'available_drivers_count' => $availableDrivers->count(),
             ], 200);
         } catch (\Exception $e) {
-
-            return response()->json([
+            // Usando Response::json em vez de response()->json
+            return Response::json([
                 'message' => 'Error creating package',
                 'error' => $e->getMessage(),
             ], 500);

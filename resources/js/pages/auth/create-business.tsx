@@ -1,35 +1,37 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import api from '@/lib/axios'
-import { Head, router } from '@inertiajs/react'
-import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
+import api from '@/lib/axios';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Head, router } from '@inertiajs/react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+// import { useTranslation } from 'react-i18next' // Removed unused import
+import { useDispatch } from 'react-redux';
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Spinner } from '@/components/ui/spinner'
+import { Button } from '@/components/ui/button';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import ProtectRoute from '@/layouts/auth/auth-simple-layout'
-import { setToken } from '@/store/slices/authSlice'
-import { dashboard } from '@/routes'
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Spinner } from '@/components/ui/spinner';
+import ProtectRoute from '@/layouts/auth/auth-simple-layout';
+import { dashboard } from '@/routes';
+import { setToken } from '@/store/slices/authSlice';
 
 const businessSchema = z.object({
-  name: z.string().min(3, { message: "Business name must be at least 3 characters" }),
-  cnpj: z.string().min(14, { message: "Invalid CNPJ" }),
-  address: z.string().optional(),
-  phone: z.string().optional(),
-})
+    name: z
+        .string()
+        .min(3, { message: 'Business name must be at least 3 characters' }),
+    cnpj: z.string().min(14, { message: 'Invalid CNPJ' }),
+    address: z.string().optional(),
+    phone: z.string().optional(),
+});
 
-type BusinessValues = z.infer<typeof businessSchema>
+type BusinessValues = z.infer<typeof businessSchema>;
 
 interface CreateBusinessResponse {
     message: string;
@@ -49,47 +51,47 @@ interface CreateBusinessResponse {
 }
 
 export default function CreateBusiness() {
-    const [processing, setProcessing] = useState(false)
-    const [success, setSuccess] = useState<CreateBusinessResponse | null>(null)
-    const dispatch = useDispatch()
-    const { t } = useTranslation()
+    const [processing, setProcessing] = useState(false);
+    const [success, setSuccess] = useState<CreateBusinessResponse | null>(null);
+    const dispatch = useDispatch();
+    // const { t } = useTranslation() // Commented out unused t
 
     const form = useForm<BusinessValues>({
         resolver: zodResolver(businessSchema),
         defaultValues: {
-            name: "",
-            cnpj: "",
-            address: "",
-            phone: "",
+            name: '',
+            cnpj: '',
+            address: '',
+            phone: '',
         },
-    })
+    });
 
     const onSubmit = async (values: BusinessValues) => {
-        setProcessing(true)
+        setProcessing(true);
         try {
-            const response = await api.post('/api/create-business', values)
+            const response = await api.post('/api/create-business', values);
             if (response.status === 201) {
                 if (response.data.token) {
-                    dispatch(setToken(response.data.token))
-                    router.visit(dashboard().url)
+                    dispatch(setToken(response.data.token));
+                    router.visit(dashboard().url);
                 } else {
-                    setSuccess(response.data)
+                    setSuccess(response.data);
                 }
             }
         } catch (error: any) {
             if (error.response?.status === 422) {
-                const apiErrors = error.response.data.errors
+                const apiErrors = error.response.data.errors;
                 Object.keys(apiErrors).forEach((key) => {
                     form.setError(key as any, {
-                        type: "manual",
+                        type: 'manual',
                         message: apiErrors[key][0],
-                    })
-                })
+                    });
+                });
             }
         } finally {
-            setProcessing(false)
+            setProcessing(false);
         }
-    }
+    };
 
     return (
         <>
@@ -161,17 +163,22 @@ export default function CreateBusiness() {
                         </div>
                     ) : (
                         <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                            <form
+                                onSubmit={form.handleSubmit(onSubmit)}
+                                className="space-y-5"
+                            >
                                 <FormField
                                     control={form.control}
                                     name="name"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Business Name *</FormLabel>
+                                            <FormLabel>
+                                                Business Name *
+                                            </FormLabel>
                                             <FormControl>
-                                                <Input 
-                                                    placeholder="Example Logistics" 
-                                                    {...field} 
+                                                <Input
+                                                    placeholder="Example Logistics"
+                                                    {...field}
                                                     autoFocus
                                                 />
                                             </FormControl>
@@ -187,9 +194,9 @@ export default function CreateBusiness() {
                                         <FormItem>
                                             <FormLabel>CNPJ *</FormLabel>
                                             <FormControl>
-                                                <Input 
-                                                    placeholder="00.000.000/0000-00" 
-                                                    {...field} 
+                                                <Input
+                                                    placeholder="00.000.000/0000-00"
+                                                    {...field}
                                                     className="font-mono"
                                                 />
                                             </FormControl>
@@ -205,9 +212,9 @@ export default function CreateBusiness() {
                                         <FormItem>
                                             <FormLabel>Address</FormLabel>
                                             <FormControl>
-                                                <Input 
-                                                    placeholder="Full address" 
-                                                    {...field} 
+                                                <Input
+                                                    placeholder="Full address"
+                                                    {...field}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -222,9 +229,9 @@ export default function CreateBusiness() {
                                         <FormItem>
                                             <FormLabel>Phone</FormLabel>
                                             <FormControl>
-                                                <Input 
-                                                    placeholder="(00) 00000-0000" 
-                                                    {...field} 
+                                                <Input
+                                                    placeholder="(00) 00000-0000"
+                                                    {...field}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -238,7 +245,9 @@ export default function CreateBusiness() {
                                     variant="blue"
                                     className="flex w-full items-center justify-center gap-2"
                                 >
-                                    {processing && <Spinner className="h-4 w-4" />}
+                                    {processing && (
+                                        <Spinner className="h-4 w-4" />
+                                    )}
                                     Create Business
                                 </Button>
                             </form>
@@ -247,5 +256,5 @@ export default function CreateBusiness() {
                 </div>
             </ProtectRoute>
         </>
-    )
+    );
 }

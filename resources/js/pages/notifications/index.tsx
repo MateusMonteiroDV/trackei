@@ -1,14 +1,11 @@
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import NotificationList from '@/components/notification-list';
-import { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
 import api from '@/lib/axios';
+import { Head } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Notifications', href: '/notifications' },
-];
+// Removed unused breadcrumbs variable
 
 export default function Notifications() {
     const [notifications, setNotifications] = useState([]);
@@ -19,7 +16,10 @@ export default function Notifications() {
     };
 
     useEffect(() => {
-        fetchNotifications();
+        const runFetchNotifications = async () => {
+            await fetchNotifications();
+        };
+        runFetchNotifications();
     }, []);
 
     return (
@@ -28,10 +28,15 @@ export default function Notifications() {
             <div className="p-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-black">All Notifications</CardTitle>
+                        <CardTitle className="text-black">
+                            All Notifications
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <NotificationList notifications={notifications} onUpdate={fetchNotifications} />
+                        <NotificationList
+                            notifications={notifications}
+                            onUpdate={fetchNotifications}
+                        />
                     </CardContent>
                 </Card>
             </div>

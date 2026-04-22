@@ -1,32 +1,48 @@
-import { useEffect } from 'react';
-import { usePage, router } from '@inertiajs/react';
-import { toast } from 'sonner';
 import { SharedData } from '@/types';
+import {
+    DriverAssignedEvent,
+    NotificationPayload,
+    PackageStatusUpdatedEvent,
+} from '@/types/notifications';
+import { router, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 export function useNotifications() {
     const { auth } = usePage<SharedData>().props;
 
     useEffect(() => {
-        if (!auth.user) return;
+        if (!auth.user || !window.Echo) return;
 
         // Listen for package updates
-        const channel = window.Echo.private(`App.Models.User.${auth.user.id}`);
+        const channel = window.Echo.private('App.Models.User.' + auth.user.id);
 
-        channel.notification((notification: any) => {
+        channel.notification<NotificationPayload>((notification) => {
             toast.info(notification.message || 'New notification');
-            router.reload({ preserveScroll: true });
+            router.reload({ preserveUrl: true });
         });
 
         // Specific events
-        if (auth.user.role === 'admin' && auth.user.business_id && window.Echo) {
+        if (
+            auth.user.role === 'admin' &&
+            auth.user.business_id &&
+            window.Echo
+        ) {
             window.Echo.private(`business.${auth.user.business_id}`)
-                .listen('PackageStatusUpdated', (e: any) => {
-                    toast.success(`Package ${e.package.tracking_code} updated to ${e.package.status}`);
-                    router.reload({ preserveScroll: true });
-                })
-                .listen('DriverAssigned', (e: any) => {
-                    toast.success(`Driver assigned to package ${e.package.tracking_code}`);
-                    router.reload({ preserveScroll: true });
+                .listen(
+                    'PackageStatusUpdated',
+                    (e: PackageStatusUpdatedEvent) => {
+                        toast.success(
+                            `Package ${e.package.tracking_code} updated to ${e.package.status}`,
+                        );
+                        router.reload({ preserveUrl: true });
+                    },
+                )
+                .listen('DriverAssigned', (e: DriverAssignedEvent) => {
+                    toast.success(
+                        `Driver assigned to package ${e.package.tracking_code}`,
+                    );
+                    router.reload({ preserveUrl: true });
                 });
         }
 
@@ -35,10 +51,6 @@ export function useNotifications() {
             if (auth.user.business_id) {
                 window.Echo.leave(`business.${auth.user.business_id}`);
             }
-        };
-    }, [auth.user]);
-}
-          }
         };
     }, [auth.user]);
 }
