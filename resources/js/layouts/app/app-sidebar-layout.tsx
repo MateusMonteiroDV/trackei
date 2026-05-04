@@ -5,6 +5,7 @@ import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import { type BreadcrumbItem } from '@/types';
 import { type PropsWithChildren } from 'react';
 import { useNotifications } from '@/hooks/use-notifications';
+import { OfflineAlert } from '@/components/offline-alert';
 
 export default function AppSidebarLayout({
     children,
@@ -14,6 +15,7 @@ export default function AppSidebarLayout({
     
     return (
         <AppShell variant="sidebar">
+            <OfflineAlert />
             <AppSidebar />
             <AppContent variant="sidebar" className="overflow-x-hidden">
                 <AppSidebarHeader breadcrumbs={breadcrumbs} />

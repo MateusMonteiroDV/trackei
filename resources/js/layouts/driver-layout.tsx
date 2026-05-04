@@ -2,6 +2,7 @@ import { type ReactNode } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import { Package, MapPin, User, LogOut, Bell } from 'lucide-react';
 import { SharedData } from '@/types';
+import { OfflineAlert } from '@/components/offline-alert';
 
 interface DriverLayoutProps {
     children: ReactNode;
@@ -15,6 +16,7 @@ export default function DriverLayout({ children, title }: DriverLayoutProps) {
 
     return (
         <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-black text-gray-900 dark:text-gray-100">
+            <OfflineAlert />
             {/* Mobile Header */}
             <header className="sticky top-0 z-40 bg-white dark:bg-zinc-900 border-b px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
