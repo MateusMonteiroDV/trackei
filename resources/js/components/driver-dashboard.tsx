@@ -4,7 +4,7 @@ import { useDriverLocation } from '@/hooks/use-driver-location';
 import DriverLayout from '@/layouts/driver-layout';
 import api from '@/lib/axios';
 import { type Package as PackageType } from '@/types';
-import { router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import {
     CheckCircle,
     MapPin,

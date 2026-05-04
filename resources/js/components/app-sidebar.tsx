@@ -33,7 +33,7 @@ function getNavItemsByRole(role: string | undefined): NavItem[] {
     const baseItems: NavItem[] = [
         {
             title: 'Dashboard',
-            href: dashboard(),
+            href: dashboard().url,
             icon: LayoutGrid,
         },
     ];

@@ -3,31 +3,29 @@
 Este documento foca exclusivamente nas tarefas de frontend necessárias para levar a interface ao estado de produção.
 
 ## 0. Correções Urgentes
-- [ ] **Bug Dashboard:** Corrigir erro que impede a exibição do dashboard (Verificar importações, exports e caminhos de arquivo no Inertia).
+- [x] **Bug Dashboard:** Corrigido erro de importação de rotas e componentes ausentes (Head).
+- [x] **Identidade Visual:** Corrigido logo e textos de "Laravel Starter Kit" para "TrackEi".
 
 ## 1. Otimização e Mobile-First (PWA)
-- [ ] **Configuração PWA:** Implementar `vite-plugin-pwa` para suporte a instalação e offline básico.
-- [ ] **Service Workers:** Configurar cache de assets estáticos e rotas principais.
-- [ ] **Manifesto Web:** Definir ícones, cores de tema e splash screens para Android/iOS.
-- [ ] **Suporte Offline:** Adicionar feedback visual ("Você está offline") e cache dos últimos pacotes visualizados pelo motorista.
+- [x] **Configuração PWA:** Implementado `vite-plugin-pwa` com registro automático.
+- [x] **Service Workers:** Configurado via Vite PWA.
+- [x] **Manifesto Web:** Definido `manifest.json` com ícones, cores e descrição do TrackEi.
+- [x] **Suporte Offline:** Adicionado componente `OfflineAlert` em todos os layouts.
 
 ## 2. UX Avançado e Polimento
-- [ ] **Refinamento de Skeletons:** Garantir que todas as páginas (`Dashboard`, `Packages`, `Track`) tenham loaders que preservem o layout.
-- [ ] **Captura de Erros (Error Boundaries):** Implementar componentes de fallback para erros em partes críticas (ex: falha ao carregar o mapa).
-- [ ] **Estados de Formulário:** Adicionar animações de "Sucesso" (check azul) e "Erro" após submissões de formulários.
-- [ ] **Acessibilidade (a11y):** Revisar contraste de cores (especialmente no modo dark) e adicionar labels para leitores de tela.
+- [x] **Refinamento de Skeletons:** Criados componentes `PackageListSkeleton` e `DashboardStatsSkeleton`.
+- [x] **Captura de Erros (Error Boundaries):** Implementado `ErrorBoundary` genérico e aplicado em todos os mapas (Leaflet).
+- [x] **Estados de Formulário:** Adicionados estados de loading, sucesso e erro com `sonner` (toasts) e ícones animados no formulário de pacotes.
+- [x] **Acessibilidade (a11y):** Adicionados `aria-label` em botões de ícone e navegação.
 
 ## 3. Performance e SEO
-- [ ] **Bundle Analysis:** Executar `rollup-plugin-visualizer` para identificar e remover dependências pesadas.
-- [ ] **Code Splitting:** Garantir que o Leaflet e outros componentes pesados sejam carregados apenas quando necessário (Dynamic Imports).
-- [ ] **Metatags e SEO:** Configurar títulos dinâmicos e descrições para a Landing Page e Página de Rastreio.
-- [ ] **Lighthouse Audit:** Atingir score > 90 em Performance e Best Practices.
+- [x] **Bundle Analysis:** Configurado `rollup-plugin-visualizer` para monitoramento do tamanho do build.
+- [x] **Code Splitting:** Implementado `lazy` / `Suspense` para carregamento dinâmico do Leaflet (Mapas).
+- [x] **Metatags e SEO:** Configuradas metatags base no `app.blade.php`.
+- [ ] **Lighthouse Audit:** Necessário rodar em ambiente de staging para validar score final.
 
 ## 4. Testes de Interface
-- [ ] **E2E Testing:** Criar fluxos de teste com Playwright/Cypress para:
-    - Fluxo de Login -> Criação de Pacote.
-    - Fluxo de Motorista -> Aceitar Entrega -> Finalizar Entrega.
-    - Busca de código na Página de Rastreio Pública.
+- [ ] **E2E Testing:** Sugerido implementação de Playwright para os fluxos críticos (Login, Driver, Public Tracking).
 
 ---
 
