@@ -5,9 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ChevronLeft, Save } from 'lucide-react';
+import { ChevronLeft, Save, CheckCircle2, Loader2 } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -23,16 +25,24 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function Create() {
     const { auth } = usePage<any>().props;
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
         sender_name: '',
         recipient_name: '',
         delivery_address: '',
         business_id: auth.user.business_id || '',
     });
 
+    useEffect(() => {
+        if (recentlySuccessful) {
+            toast.success('Package created successfully!');
+        }
+    }, [recentlySuccessful]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post('/packages'); // The web route handles creation and redirection
+        post('/packages', {
+            onError: () => toast.error('Error creating package. Please check the fields.'),
+        });
     };
 
     return (
@@ -102,9 +112,27 @@ export default function Create() {
                                     <Button variant="outline" asChild disabled={processing}>
                                         <Link href="/packages">Cancel</Link>
                                     </Button>
-                                    <Button type="submit" disabled={processing}>
-                                        <Save className="mr-2 h-4 w-4" />
-                                        Save Package
+                                    <Button 
+                                        type="submit" 
+                                        disabled={processing || recentlySuccessful}
+                                        className={recentlySuccessful ? 'bg-green-600 hover:bg-green-700' : ''}
+                                    >
+                                        {processing ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Saving...
+                                            </>
+                                        ) : recentlySuccessful ? (
+                                            <>
+                                                <CheckCircle2 className="mr-2 h-4 w-4" />
+                                                Saved!
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Save className="mr-2 h-4 w-4" />
+                                                Save Package
+                                            </>
+                                        )}
                                     </Button>
                                 </div>
                             </form>

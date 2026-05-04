@@ -22,7 +22,6 @@ export function useNotifications() {
             router.reload({ preserveUrl: true });
         });
 
-        // Specific events
         if (
             auth.user.role === 'admin' &&
             auth.user.business_id &&

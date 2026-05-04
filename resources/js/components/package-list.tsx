@@ -11,9 +11,41 @@ import { type Package, type PaginatedResponse } from '@/types';
 import { Link } from '@inertiajs/react';
 import { Eye } from 'lucide-react';
 import StatusBadge from '@/components/status-badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface PackageListProps {
     packages: PaginatedResponse<Package>;
+}
+
+export function PackageListSkeleton() {
+    return (
+        <div className="space-y-4">
+            <div className="rounded-md border">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Tracking Code</TableHead>
+                            <TableHead>Recipient</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <TableRow key={i}>
+                                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                                <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                                <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                                <TableCell className="text-right"><Skeleton className="ml-auto h-8 w-8 rounded-md" /></TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+        </div>
+    );
 }
 
 export default function PackageList({ packages }: PackageListProps) {

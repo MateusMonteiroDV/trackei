@@ -7,7 +7,11 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, MapPin, Phone, User, Building, Truck } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import StatusBadge from '@/components/status-badge';
-import Map from '@/components/map';
+import { lazy, Suspense } from 'react';
+import ErrorBoundary from '@/components/error-boundary';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const Map = lazy(() => import('@/components/map'));
 
 interface ShowProps {
     package: Package;
@@ -70,16 +74,20 @@ export default function Show({ package: pkg }: ShowProps) {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-0 h-[400px]">
-                                    <Map 
-                                        center={[driverLocation.lat, driverLocation.lng]} 
-                                        markers={[
-                                            {
-                                                id: pkg.id,
-                                                position: [driverLocation.lat, driverLocation.lng],
-                                                label: `Package ${pkg.tracking_code}`
-                                            }
-                                        ]}
-                                    />
+                                    <ErrorBoundary>
+                                        <Suspense fallback={<Skeleton className="h-full w-full" />}>
+                                            <Map 
+                                                center={[driverLocation.lat, driverLocation.lng]} 
+                                                markers={[
+                                                    {
+                                                        id: pkg.id,
+                                                        position: [driverLocation.lat, driverLocation.lng],
+                                                        label: `Package ${pkg.tracking_code}`
+                                                    }
+                                                ]}
+                                            />
+                                        </Suspense>
+                                    </ErrorBoundary>
                                 </CardContent>
                             </Card>
                         )}

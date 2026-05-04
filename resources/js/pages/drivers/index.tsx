@@ -20,9 +20,13 @@ import {
 } from '@/components/ui/table';
 import { Plus, Search, Eye, Map as MapIcon, List } from 'lucide-react';
 import { useState } from 'react';
+import { lazy, Suspense } from 'react';
 import StatusBadge from '@/components/status-badge';
-import Map from '@/components/map';
+import ErrorBoundary from '@/components/error-boundary';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const Map = lazy(() => import('@/components/map'));
 
 interface IndexProps {
     drivers: PaginatedResponse<Driver>;
@@ -205,15 +209,19 @@ export default function Index({ drivers, filters }: IndexProps) {
                 ) : (
                     <Card className="overflow-hidden">
                         <CardContent className="p-0 h-[600px]">
-                            <Map 
-                                center={mapCenter} 
-                                zoom={12}
-                                markers={driversWithLocation.map(d => ({
-                                    id: d.id,
-                                    position: [d.latest_location!.lat, d.latest_location!.lng],
-                                    label: `${d.name} (${d.status})`
-                                }))}
-                            />
+                            <ErrorBoundary>
+                                <Suspense fallback={<Skeleton className="h-full w-full" />}>
+                                    <Map 
+                                        center={mapCenter} 
+                                        zoom={12}
+                                        markers={driversWithLocation.map(d => ({
+                                            id: d.id,
+                                            position: [d.latest_location!.lat, d.latest_location!.lng],
+                                            label: `${d.name} (${d.status})`
+                                        }))}
+                                    />
+                                </Suspense>
+                            </ErrorBoundary>
                         </CardContent>
                     </Card>
                 )}

@@ -1,5 +1,9 @@
-import Map from '@/components/map';
+import { lazy, Suspense } from 'react';
+import ErrorBoundary from '@/components/error-boundary';
+import { Skeleton } from '@/components/ui/skeleton';
 import TrackingTimeline from '@/components/tracking-timeline';
+
+const Map = lazy(() => import('@/components/map'));
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -115,22 +119,26 @@ export default function Track() {
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="h-[400px] p-0">
-                                            <Map
-                                                center={[
-                                                    driverLocation.lat,
-                                                    driverLocation.lng,
-                                                ]}
-                                                markers={[
-                                                    {
-                                                        id: pkg.id,
-                                                        position: [
+                                            <ErrorBoundary>
+                                                <Suspense fallback={<Skeleton className="h-full w-full" />}>
+                                                    <Map
+                                                        center={[
                                                             driverLocation.lat,
                                                             driverLocation.lng,
-                                                        ],
-                                                        label: 'Your package is here',
-                                                    },
-                                                ]}
-                                            />
+                                                        ]}
+                                                        markers={[
+                                                            {
+                                                                id: pkg.id,
+                                                                position: [
+                                                                    driverLocation.lat,
+                                                                    driverLocation.lng,
+                                                                ],
+                                                                label: 'Your package is here',
+                                                            },
+                                                        ]}
+                                                    />
+                                                </Suspense>
+                                            </ErrorBoundary>
                                         </CardContent>
                                     </Card>
                                 )}
